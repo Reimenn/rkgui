@@ -1,4 +1,5 @@
 local text_tools = require 'rkgui.text'
+local utils = require 'rkgui.utils'
 local module = {}
 
 --- @param text string
@@ -7,13 +8,9 @@ local module = {}
 function module.button(gui, rect, text)
     --- @module 'rkgui'
     gui = gui
-    local click = false
+    local click = gui.check_mouse_release(rect)
 
-    if gui.last_event.name == 'mouse_up' then
-        click = rect:point_in(gui.last_event.args[2], gui.last_event.args[3])
-    end
-
-    if gui.hover and rect:point_in(gui.hover.x, gui.hover.y) then
+    if gui.check_mouse_hover(rect) then
         paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y, colors.lightGray)
     else
         paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y, colors.gray)
@@ -43,20 +40,26 @@ end
 --- @param checked boolean
 --- @return boolean
 function module.checkbox(gui, rect, text, checked)
-    if gui.last_event.name == 'mouse_up' then
-        if rect:point_in(gui.last_event.args[2], gui.last_event.args[3]) then
-            checked = not checked
-        end
+    --- @module 'rkgui'
+    gui = gui
+
+    --- @type Rect
+    local click_rect = utils.shallow_copy(rect)
+    click_rect.w = #text + 2
+    if gui.check_mouse_release(click_rect) then
+        checked = not checked
     end
 
     term.setCursorPos(rect.x, rect.y)
 
-    if checked then
+    if gui.check_mouse_hover(click_rect) then
+        term.blit('=', '1', 'l')
+    elseif checked then
         term.blit(' ', 'e', '5')
     else
         term.blit(string.char(127), 'e', 'l')
     end
-    
+
     term.blit(' ', '0', 'f')
     term.write(text)
     return checked

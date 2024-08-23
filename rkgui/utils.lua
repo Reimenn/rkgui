@@ -100,4 +100,12 @@ function Stack:clear()
     self.data = {}
 end
 
+function model.shallow_copy(obj) 
+    local res = setmetatable({}, obj.__index)
+    for k,v in pairs(obj) do
+        res[k] = v
+    end
+    return res
+end
+
 return model

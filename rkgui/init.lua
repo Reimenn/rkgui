@@ -13,6 +13,8 @@ gui.hover           = nil
 gui.last_event      = {}
 --- @type {[integer]:{msg:string,level:integer}}
 gui.debug_buffer    = {}
+--- @type Rect
+gui.last_rect = nil
 
 local function init()
     term.setBackgroundColor(colors.black)
@@ -31,22 +33,44 @@ local function init()
     gui.dir_stack:push('tb')
 end
 
+--- Check if mouse hover on rect
+--- @param rect Rect
+--- @return boolean
+function gui.check_mouse_hover(rect)
+    return gui.hover and rect:point_in(gui.hover.x, gui.hover.y)
+end
+
+--- Check if mouse release on rect
+--- @param rect Rect
+--- @return boolean
+function gui.check_mouse_release(rect)
+    return gui.last_event.name == 'mouse_up' and rect:point_in(gui.last_event.args[2], gui.last_event.args[3])
+end
+
+--- Check if mouse down on rect
+--- @param rect Rect
+--- @return boolean
+function gui.check_mouse_down(rect)
+    return gui.last_event.name == 'mouse_click' and rect:point_in(gui.last_event.args[2], gui.last_event.args[3])
+end
+
 --- @param text string
 --- @return boolean
-function gui.button(text) return components.button(gui, gui.rect(1), text) end
+function gui.button(text) return components.button(gui, gui.malloc_rect(1), text) end
 
 --- @param text string
 --- @param align nil | 'l' | 'r' | 'c'
 function gui.label(text, align)
     if align == nil then align = 'l' end
-    components.label(gui, gui.rect(1), text, align)
+    components.label(gui, gui.malloc_rect(1), text, align)
 end
 
---- @parma text string
+--- @parma 
 --- @parma checked boolean
 --- @return boolean
-function gui.checked(text, checked) return components.checkbox(gui, gui.rect(1), text,checked) end
-
+function gui.checked(text, checked)
+    return components.checkbox(gui, gui.malloc_rect(1), text, checked)
+end
 
 --- @param msg string
 --- display debug info at bottom of screen
@@ -84,6 +108,25 @@ function gui.debug_raw(msg, level)
     end
 end
 
+--- @param size integer
+--- @return Rect
+function gui.malloc_rect(size)
+    local contaner = gui.contaners_stack:peek()
+    local dir = gui.dir_stack:peek()
+    local offset = gui.offset_stack:peek()
+    gui.last_rect = core.Rect.new()
+    if dir == "tb" then
+        gui.last_rect.x = contaner.x
+        gui.last_rect.y = contaner.y + offset
+        gui.last_rect.w = contaner.w
+        gui.last_rect.h = size
+    end
+    gui.offset_stack:pop()
+    gui.offset_stack:push(size + offset)
+    return gui.last_rect
+end
+
+--- draw debug info at bottom of the screen
 local function draw_debug()
     local x, y = term.getSize()
     local color = { colors.gray, colors.orange, colors.red }
@@ -96,24 +139,7 @@ local function draw_debug()
     end
 end
 
---- @param size integer
---- @return Rect
-function gui.rect(size)
-    local contaner = gui.contaners_stack:peek()
-    local dir = gui.dir_stack:peek()
-    local offset = gui.offset_stack:peek()
-    local rect = core.Rect.new()
-    if dir == "tb" then
-        rect.x = contaner.x
-        rect.y = contaner.y + offset
-        rect.w = contaner.w
-        rect.h = size
-    end
-    gui.offset_stack:pop()
-    gui.offset_stack:push(size + offset)
-    return rect
-end
-
+--- @return boolean "exit loop?"
 local function pullEvent()
     local timerId = os.startTimer(.1)
     local event, param, x, y = os.pullEventRaw()
@@ -133,6 +159,7 @@ local function pullEvent()
     elseif event == 'mouse_up' then
         gui.hover = nil
     end
+    return false
 end
 
 --- @param view function
