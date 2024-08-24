@@ -69,7 +69,7 @@ function gui.label(text, align) components.label(gui, text, align) end
 --- @parma
 --- @parma checked boolean
 --- @return boolean
-function gui.checked(text, checked) return components.checkbox(gui, text, checked) end
+function gui.checkbox(text, checked) return components.checkbox(gui, text, checked) end
 
 --- @param percent number [0,1]
 --- @param show_percent boolean
