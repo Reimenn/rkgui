@@ -95,31 +95,54 @@ function module.checkbox(gui, text, checked)
     return checked
 end
 
+local progress_bar_stage_table = {
+    string.char(144),
+    string.char(148),
+    string.char(149),
+    string.char(151),
+    string.char(159),
+    ' ',
+}
+
 --- @param percent number
 --- @param show_percent boolean
-function module.percent(gui, percent, show_percent)
+function module.progress_bar(gui, percent, show_percent)
     --- @module 'rkgui'
     gui = gui
     local rect = gui.malloc_rect(10, 1)
+    term.setTextColor(colors.white)
 
+    -- percent title
     if show_percent then
         local title = text_tools.right(string.format('%d', percent * 100) .. '% ', 5)
         term.setCursorPos(rect.x, rect.y)
         term.setBackgroundColor(colors.black)
-        term.setTextColor(colors.white)
         term.write(title)
         rect.x = rect.x + 5
         rect.w = rect.w - 5
     end
 
-    term.setBackgroundColor(colors.black)
-    term.setTextColor(colors.gray)
+    -- background
+    term.setBackgroundColor(colors.gray)
     term.setCursorPos(rect.x, rect.y)
-    term.write(string.rep(string.char(127), rect.w))
-    -- paintutils.drawBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y, colors.gray)
+    term.write(string.rep(' ', rect.w))
+
+    -- progress
     if percent > 0 then
-        local width = math.floor(rect.w * percent)
-        paintutils.drawBox(rect.x, rect.y, rect.x + width, rect.y, colors.white)
+        term.setCursorPos(rect.x, rect.y)
+        term.setBackgroundColor(colors.white)
+        local width = (rect.w) * percent
+        local width_floor = math.floor(width)
+        term.write(string.rep(' ', width_floor))
+
+        -- remain
+        local remain = width - width_floor
+        if remain > 0 then
+            local stage = math.floor(remain * 6) + 1
+            term.setBackgroundColor(colors.gray)
+            if stage == 6 then term.setBackgroundColor(colors.white) end
+            term.write(progress_bar_stage_table[stage])
+        end
     end
 end
 

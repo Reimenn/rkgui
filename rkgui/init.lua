@@ -84,7 +84,7 @@ function gui.checkbox(text, checked) return components.checkbox(gui, text, check
 
 --- @param percent number [0,1]
 --- @param show_percent boolean
-function gui.progress(percent, show_percent) components.percent(gui, percent, show_percent) end
+function gui.progress_bar(percent, show_percent) components.progress_bar(gui, percent, show_percent) end
 
 --- @param value number
 --- @param min number

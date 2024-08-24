@@ -42,8 +42,8 @@ Switch tabs at the top of the screen to see more content!
         name = "Demo2",
         draw = function()
             gui.space()
-            gui.label("A progress")
-            gui.progress((os.time()) % 1, true)
+            gui.label("A progress bar")
+            gui.progress_bar((os.time()) % 1, true)
             gui.space()
             gui.label("A slider (33 to 99)")
             c_slider = gui.slider(c_slider, 33, 99, true, true)
@@ -54,7 +54,7 @@ Switch tabs at the top of the screen to see more content!
             gui.space()
             gui.label("Components in row")
             gui.row_start()
-            gui.button(">_<")
+            gui.button("  >_<  ")
             c_slider = gui.slider(c_slider, 33, 99, true, false)
             c_check = gui.checkbox("A check box", c_check)
 
