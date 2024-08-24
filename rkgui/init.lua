@@ -1,8 +1,6 @@
 local core          = require 'rkgui.utils'
 local components    = require 'rkgui.components'
---- @type fun(text:string, width:integer):string[]
-local text_wrap     = require('cc.strings').wrap
-
+local text_tools    = require 'rkgui.text'
 local gui           = {}
 
 gui.contaners_stack = core.Stack.new()
@@ -71,7 +69,7 @@ function gui.label(text, align) components.label(gui, text, align) end
 --- @param text string
 function gui.multiline_label(text)
     local total_w = gui.contaners_stack:peek().w
-    local line = text_wrap(text, total_w)
+    local line = text_tools.wrap(text, total_w)
     for i = 1, #line do
         gui.label(line[i])
     end

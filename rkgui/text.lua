@@ -1,3 +1,7 @@
+--- @type fun(text:string, width:integer):string[]
+local text_wrap = require('cc.strings').wrap
+
+
 local text = {}
 
 --- @param text string
@@ -32,6 +36,13 @@ function text.left(text, width)
     local space = width - #text
     if space <= 0 then return text end
     return text .. string.rep(' ', space)
+end
+
+--- @param source string
+--- @param width integer
+--- @return string[]
+function text.wrap(source, width)
+    return text_wrap(source, width)
 end
 
 return text
