@@ -108,7 +108,13 @@ function gui.malloc_rect(min_w, min_h)
         gui.last_rect.x = contaner.x + offset
         gui.last_rect.y = contaner.y
         gui.last_rect.w = min_w
-        gui.last_rect.h = contaner.h
+        if contaner.h < min_h then
+            local p2 = gui.offset_stack:pop()
+            p2 = p2 + min_h - gui.last_rect.h - 1
+            gui.offset_stack:push(p2)
+            contaner.h = min_h
+        end
+        gui.last_rect.h = min_h
         gui.offset_stack:push(min_w + offset)
     end
 

@@ -21,5 +21,8 @@ local function ascii()
 end
 
 gui.start_loop(function()
-    gui.button_big("Big!")
+    gui.row_start()
+    gui.button_big("!Big!")
+    gui.row_end()
+    gui.label("--")
 end)
