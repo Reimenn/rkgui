@@ -1,7 +1,5 @@
 local gui = require 'rkgui'
 
-local c = 0
-
 local function ascii()
     gui.row_start()
     gui.label('000 ')
@@ -20,9 +18,16 @@ local function ascii()
     gui.row_end()
 end
 
+local c = 3
+
 gui.start_loop(function()
-    for i = 0, 10 do
-        gui.progress(i / 10, true)
+    if gui.button('click') then
+        c = c + 1
     end
-    gui.label('end', 'c')
+    c = gui.slider(c, -10, 10, true, true)
+    c = gui.slider(c, -10, 10, false, true)
+
+    gui.label('end ' .. c, 'c')
+
+    ascii()
 end)

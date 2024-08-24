@@ -1,5 +1,6 @@
 local text_tools = require 'rkgui.text'
 local utils = require 'rkgui.utils'
+local utils = require 'rkgui.utils'
 local module = {}
 
 --- @param text string
@@ -114,13 +115,70 @@ function module.percent(gui, percent, show_percent)
 
     term.setBackgroundColor(colors.black)
     term.setTextColor(colors.gray)
-    term.setCursorPos(rect.x,rect.y)
+    term.setCursorPos(rect.x, rect.y)
     term.write(string.rep(string.char(127), rect.w))
     -- paintutils.drawBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y, colors.gray)
     if percent > 0 then
         local width = math.floor(rect.w * percent)
         paintutils.drawBox(rect.x, rect.y, rect.x + width, rect.y, colors.white)
     end
+end
+
+--- @param value number
+--- @param min number
+--- @param max number
+--- @param integer boolean
+--- @param show_number boolean
+--- @return number
+function module.slider(gui, value, min, max, integer, show_number)
+    --- @module 'rkgui'
+    gui = gui
+    local rect = gui.malloc_rect(20, 1)
+
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.black)
+    term.setCursorPos(rect.x, rect.y)
+
+    -- number prefix
+    if show_number then
+        local prefix = ''
+        if integer then
+            local max_number_len = math.max(#(max .. ''), 4)
+            prefix = text_tools.right(string.format('%d', value), max_number_len) .. ' '
+        else
+            local max_number_len = math.max(#(max .. ''), 4) + 2
+            prefix = text_tools.right(string.format('%.1f', value), max_number_len) .. ' '
+        end
+        term.write(prefix)
+        rect.x = rect.x + #prefix
+        rect.w = rect.w - #prefix
+    end
+
+    -- slider body
+    term.setTextColor(colors.gray)
+    term.write('<' .. string.rep(string.char(140), rect.w - 2) .. '>')
+
+    -- value indicator
+    local percent = (value - min) / (max - min)
+    local indicator_left = (rect.w - 3) * percent
+    term.setCursorPos(rect.x + indicator_left + 1, rect.y)
+    term.blit(' ', '0', '0')
+
+    -- input
+    local slider_rect = utils.Rect.new()
+    slider_rect.x = rect.x + 1
+    slider_rect.y = rect.y
+    slider_rect.w = rect.w - 2
+    slider_rect.h = rect.h
+    if gui.check_mouse_hover(slider_rect) then
+        percent = (gui.hover.x - slider_rect.x) / (slider_rect.w - 1)
+        value = (max - min) * percent + min
+        if integer then
+            value = math.ceil(value)
+        end
+    end
+
+    return value
 end
 
 return module

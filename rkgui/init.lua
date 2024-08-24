@@ -75,6 +75,14 @@ function gui.checked(text, checked) return components.checkbox(gui, text, checke
 --- @param show_percent boolean
 function gui.progress(percent, show_percent) components.percent(gui, percent, show_percent) end
 
+--- @param value number
+--- @param min number
+--- @param max number
+--- @param integer boolean
+--- @param show_number boolean
+--- @return number
+function gui.slider(value, min, max, integer, show_number) return components.slider(gui, value, min, max, integer, show_number) end
+
 function gui.space() gui.malloc_rect(1, 1) end
 
 function gui.row_start()
