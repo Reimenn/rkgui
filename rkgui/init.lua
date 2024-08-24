@@ -1,5 +1,7 @@
 local core          = require 'rkgui.utils'
 local components    = require 'rkgui.components'
+--- @type fun(text:string, width:integer):string[]
+local text_wrap     = require('cc.strings').wrap
 
 local gui           = {}
 
@@ -65,6 +67,15 @@ function gui.button_big(text) return components.button_big(gui, text) end
 --- @param text string
 --- @param align nil | 'l' | 'r' | 'c'
 function gui.label(text, align) components.label(gui, text, align) end
+
+--- @param text string
+function gui.multiline_label(text)
+    local total_w = gui.contaners_stack:peek().w
+    local line = text_wrap(text, total_w)
+    for i = 1, #line do
+        gui.label(line[i])
+    end
+end
 
 --- @parma
 --- @parma checked boolean
