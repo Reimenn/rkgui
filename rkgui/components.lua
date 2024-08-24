@@ -48,7 +48,7 @@ function module.button_big(gui, text)
 end
 
 --- @param text string
---- @param align 'l' | 'c' | 'r'
+--- @param align 'l' | 'c' | 'r' | nil
 function module.label(gui, text, align)
     local rect = gui.malloc_rect(#text, 1)
     if align == 'r' then
@@ -56,6 +56,8 @@ function module.label(gui, text, align)
     elseif align == 'c' then
         text = text_tools.center(text, rect.w)
     end
+
+    term.setTextColor(colors.white)
     term.setBackgroundColor(colors.black)
     term.setCursorPos(rect.x, rect.y)
     term.write(text)
@@ -91,6 +93,34 @@ function module.checkbox(gui, text, checked)
     term.setTextColor(colors.white)
     term.write(text)
     return checked
+end
+
+--- @param percent number
+--- @param show_percent boolean
+function module.percent(gui, percent, show_percent)
+    --- @module 'rkgui'
+    gui = gui
+    local rect = gui.malloc_rect(10, 1)
+
+    if show_percent then
+        local title = text_tools.right(string.format('%d', percent * 100) .. '% ', 5)
+        term.setCursorPos(rect.x, rect.y)
+        term.setBackgroundColor(colors.black)
+        term.setTextColor(colors.white)
+        term.write(title)
+        rect.x = rect.x + 5
+        rect.w = rect.w - 5
+    end
+
+    term.setBackgroundColor(colors.black)
+    term.setTextColor(colors.gray)
+    term.setCursorPos(rect.x,rect.y)
+    term.write(string.rep(string.char(127), rect.w))
+    -- paintutils.drawBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y, colors.gray)
+    if percent > 0 then
+        local width = math.floor(rect.w * percent)
+        paintutils.drawBox(rect.x, rect.y, rect.x + width, rect.y, colors.white)
+    end
 end
 
 return module

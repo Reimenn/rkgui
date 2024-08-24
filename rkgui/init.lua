@@ -64,15 +64,16 @@ function gui.button_big(text) return components.button_big(gui, text) end
 
 --- @param text string
 --- @param align nil | 'l' | 'r' | 'c'
-function gui.label(text, align)
-    if align == nil then align = 'l' end
-    components.label(gui, text, align)
-end
+function gui.label(text, align) components.label(gui, text, align) end
 
 --- @parma
 --- @parma checked boolean
 --- @return boolean
 function gui.checked(text, checked) return components.checkbox(gui, text, checked) end
+
+--- @param percent number [0,1]
+--- @param show_percent boolean
+function gui.progress(percent, show_percent) components.percent(gui, percent, show_percent) end
 
 function gui.space() gui.malloc_rect(1, 1) end
 

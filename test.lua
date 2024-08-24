@@ -21,8 +21,8 @@ local function ascii()
 end
 
 gui.start_loop(function()
-    gui.row_start()
-    gui.button_big("!Big!")
-    gui.row_end()
-    gui.label("--")
+    for i = 0, 10 do
+        gui.progress(i / 10, true)
+    end
+    gui.label('end', 'c')
 end)
