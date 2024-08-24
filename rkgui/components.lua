@@ -1,6 +1,5 @@
 local text_tools = require 'rkgui.text'
 local utils = require 'rkgui.utils'
-local utils = require 'rkgui.utils'
 local module = {}
 
 --- @param text string
@@ -179,6 +178,47 @@ function module.slider(gui, value, min, max, integer, show_number)
     end
 
     return value
+end
+
+--- @param selected integer
+--- @param tabs {[integer]:string}
+--- @return integer
+function module.tabs(gui, selected, tabs)
+    --- @module 'rkgui'
+    gui = gui
+
+    -- width check & malloc rect
+    local need_width = 0
+    for i = 1, #tabs do need_width = need_width + #(tabs[i]) + 2 end
+    local rect = gui.malloc_rect(need_width, 1)
+
+    -- input check
+    local check_x = rect.x
+    for i = 1, #tabs do
+        local click_rect           = utils.Rect.new()
+        click_rect.x, click_rect.y = check_x, rect.y
+        click_rect.w, click_rect.h = #(tabs[i]) + 2, 1
+        if gui.check_mouse_release(click_rect) then
+            selected = i
+        end
+        check_x = check_x + click_rect.w
+    end
+
+    -- draw
+    term.setCursorPos(rect.x, rect.y)
+    for i = 1, #tabs do
+        local text = ' ' .. tabs[i] .. ' '
+        if selected == i then
+            term.setBackgroundColor(colors.lightGray)
+            term.setTextColor(colors.black)
+        else
+            term.setBackgroundColor(colors.gray)
+            term.setTextColor(colors.black)
+        end
+        term.write(text)
+    end
+
+    return selected
 end
 
 return module

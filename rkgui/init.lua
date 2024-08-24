@@ -81,7 +81,14 @@ function gui.progress(percent, show_percent) components.percent(gui, percent, sh
 --- @param integer boolean
 --- @param show_number boolean
 --- @return number
-function gui.slider(value, min, max, integer, show_number) return components.slider(gui, value, min, max, integer, show_number) end
+function gui.slider(value, min, max, integer, show_number)
+    return components.slider(gui, value, min, max, integer, show_number)
+end
+
+--- @param selected integer
+--- @param tabs {[integer]:string}
+--- @return integer
+function gui.tabs(selected, tabs) return components.tabs(gui, selected, tabs) end
 
 function gui.space() gui.malloc_rect(1, 1) end
 
