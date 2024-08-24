@@ -1,27 +1,25 @@
 local gui = require 'rkgui'
 
 local c = 0
-local selected = false
-gui.start_loop(function()
-    if gui.button("Info") then
-        c = c + 1
-        gui.debug_info({ a = 23 })
-    end
-    if gui.button("Warning") then
-        c = c + 1
-        gui.debug_warnning("! awd")
-    end
-    if gui.button("Error") then
-        c = c + 1
-        gui.debug_error("Error:ajw")
-    end
-    if gui.button("Clear") then
-        c = c + 1
-        gui.debug_clear()
-    end
-    gui.label("Counter " .. c)
-    gui.label("Counter " .. c, 'c')
-    gui.label("Counter " .. c, 'r')
 
-    selected = gui.checked("Test", selected)
+local function ascii()
+    gui.row_start()
+    gui.label('000 ')
+    for i = 100, 169 do
+        if i % 15 == 0 then
+            gui.row_end()
+            gui.label(i .. ' ')
+            gui.row_start()
+            gui.label('       ')
+        end
+        if i % 5 == 0 then
+            gui.label('   ')
+        end
+        gui.label(string.char(i) .. ' ')
+    end
+    gui.row_end()
+end
+
+gui.start_loop(function()
+    gui.button_big("Big!")
 end)

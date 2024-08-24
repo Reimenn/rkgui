@@ -10,6 +10,9 @@ function text.center(text, width)
         local left = space / 2
         res = string.rep(' ', left) .. text .. string.rep(' ', space - left)
     end
+    if #res < width then
+        res = res .. ' '
+    end
     return res
 end
 

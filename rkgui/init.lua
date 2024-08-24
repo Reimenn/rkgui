@@ -14,7 +14,7 @@ gui.last_event      = {}
 --- @type {[integer]:{msg:string,level:integer}}
 gui.debug_buffer    = {}
 --- @type Rect
-gui.last_rect = nil
+gui.last_rect       = nil
 
 local function init()
     term.setBackgroundColor(colors.black)
@@ -56,20 +56,63 @@ end
 
 --- @param text string
 --- @return boolean
-function gui.button(text) return components.button(gui, gui.malloc_rect(1), text) end
+function gui.button(text) return components.button(gui, text) end
+
+--- @param text string
+--- @return boolean
+function gui.button_big(text) return components.button_big(gui, text) end
 
 --- @param text string
 --- @param align nil | 'l' | 'r' | 'c'
 function gui.label(text, align)
     if align == nil then align = 'l' end
-    components.label(gui, gui.malloc_rect(1), text, align)
+    components.label(gui, text, align)
 end
 
---- @parma 
+--- @parma
 --- @parma checked boolean
 --- @return boolean
-function gui.checked(text, checked)
-    return components.checkbox(gui, gui.malloc_rect(1), text, checked)
+function gui.checked(text, checked) return components.checkbox(gui, text, checked) end
+
+function gui.space() gui.malloc_rect(1, 1) end
+
+function gui.row_start()
+    gui.contaners_stack:push(gui.malloc_rect(1, 1))
+    gui.offset_stack:push(0)
+    gui.dir_stack:push('lr')
+end
+
+function gui.row_end()
+    gui.contaners_stack:pop()
+    gui.offset_stack:pop()
+    gui.dir_stack:pop()
+end
+
+--- @param min_w integer
+--- @param min_h integer
+--- @return Rect
+function gui.malloc_rect(min_w, min_h)
+    local contaner = gui.contaners_stack:peek()
+    local dir = gui.dir_stack:peek()
+    local offset = gui.offset_stack:peek()
+    gui.last_rect = core.Rect.new()
+
+    gui.offset_stack:pop()
+    if dir == "tb" then
+        gui.last_rect.x = contaner.x
+        gui.last_rect.y = contaner.y + offset
+        gui.last_rect.w = contaner.w
+        gui.last_rect.h = min_h
+        gui.offset_stack:push(min_h + offset)
+    elseif dir == "lr" then
+        gui.last_rect.x = contaner.x + offset
+        gui.last_rect.y = contaner.y
+        gui.last_rect.w = min_w
+        gui.last_rect.h = contaner.h
+        gui.offset_stack:push(min_w + offset)
+    end
+
+    return gui.last_rect
 end
 
 --- @param msg string
@@ -106,24 +149,6 @@ function gui.debug_raw(msg, level)
         table.remove(gui.debug_buffer, 0)
         table.remove(gui.debug_buffer, 0)
     end
-end
-
---- @param size integer
---- @return Rect
-function gui.malloc_rect(size)
-    local contaner = gui.contaners_stack:peek()
-    local dir = gui.dir_stack:peek()
-    local offset = gui.offset_stack:peek()
-    gui.last_rect = core.Rect.new()
-    if dir == "tb" then
-        gui.last_rect.x = contaner.x
-        gui.last_rect.y = contaner.y + offset
-        gui.last_rect.w = contaner.w
-        gui.last_rect.h = size
-    end
-    gui.offset_stack:pop()
-    gui.offset_stack:push(size + offset)
-    return gui.last_rect
 end
 
 --- draw debug info at bottom of the screen
