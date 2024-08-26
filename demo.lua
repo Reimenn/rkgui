@@ -1,11 +1,11 @@
 local gui = require 'rkgui'
-
-
 local c_check = false
 local c_slider = 50
 local c_tabs = 2
 local c_counter = 0
+local c_input_text = 'Hello World!'
 local selected_page = 1
+
 
 local pages = {
     {
@@ -57,8 +57,14 @@ Switch tabs at the top of the screen to see more content!
             gui.button("  >_<  ")
             c_slider = gui.slider(c_slider, 33, 99, true, false)
             c_check = gui.checkbox("A check box", c_check)
-
             gui.row_end()
+            
+            gui.space()
+            if gui.button("Click me to input text") then
+                c_input_text = require('rkgui.input').get(gui,c_input_text,"Input some text:")
+            else
+                gui.label(c_input_text)
+            end
         end
     },
     {

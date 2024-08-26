@@ -222,12 +222,20 @@ end
 function gui.start_loop(view)
     while true do
         init()
-        view()
-        draw_debug()
+        if view() then
+            break
+        end
+        if #(gui.debug_buffer) > 0 then
+            local x, y = term.getCursorPos()
+            draw_debug()
+            term.setCursorPos(x, y)
+        end
         if pullEvent() then
             break
         end
     end
+    local w, h = term.getSize()
+    term.setCursorPos(1, h)
 end
 
 return gui

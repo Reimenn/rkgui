@@ -3,6 +3,7 @@
         "paintutils",
         "term",
         "colors",
-        "textutils"
+        "textutils",
+        "keys"
     ]
 }

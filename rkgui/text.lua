@@ -45,4 +45,21 @@ function text.wrap(source, width)
     return text_wrap(source, width)
 end
 
+--- @param source string
+--- @param value string
+--- @param pos integer
+--- @return string
+function text.insert(source, value, pos)
+    source = source:sub(1, pos - 2) .. value .. source:sub(pos - 1)
+    return source
+end
+
+--- @param source string
+--- @param pos integer
+--- @return string
+function text.removeAt(source, pos)
+    source = source:sub(1, pos - 1) .. source:sub(pos + 1)
+    return source
+end
+
 return text
