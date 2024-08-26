@@ -1,20 +1,24 @@
-local core          = require 'rkgui.utils'
-local components    = require 'rkgui.components'
-local text_tools    = require 'rkgui.text'
-local gui           = {}
+local core             = require 'rkgui.utils'
+local components       = require 'rkgui.components'
+local text_tools       = require 'rkgui.text'
+local gui              = {}
 
-gui.contaners_stack = core.Stack.new()
-gui.offset_stack    = core.Stack.new()
-gui.dir_stack       = core.Stack.new()
+gui.contaners_stack    = core.Stack.new()
+gui.offset_stack       = core.Stack.new()
+gui.dir_stack          = core.Stack.new()
 
 --- @type {x:integer,y:integer}
-gui.hover           = nil
+gui.hover              = nil
 --- @type {name:string,args:{[integer]:any}}
-gui.last_event      = {}
+gui.last_event         = {}
 --- @type {[integer]:{msg:string,level:integer}}
-gui.debug_buffer    = {}
+gui.debug_buffer       = {}
 --- @type Rect
-gui.last_rect       = nil
+gui.last_rect          = nil
+--- @type {name:string,keys:string[],action:fun()}[]
+gui.keyboard_shortcuts = {}
+--- @type integer[]
+gui.hoding_keys        = {}
 
 local function init()
     term.setBackgroundColor(colors.black)
@@ -182,6 +186,26 @@ function gui.debug_raw(msg, level)
     end
 end
 
+--- @param name string
+--- @param keys string[]
+--- @param action fun()
+function gui.regist_shortcut(name, keys, action)
+    table.insert(gui.keyboard_shortcuts, {
+        name = name,
+        keys = keys,
+        action = action
+    })
+end
+
+--- @param name string
+function gui.unregist_shotcut(name)
+    for i = #gui.keyboard_shortcuts, 1, -1 do
+        if gui.keyboard_shortcuts[i].name == name then
+            table.remove(gui.keyboard_shortcuts, i)
+        end
+    end
+end
+
 --- draw debug info at bottom of the screen
 local function draw_debug()
     local x, y = term.getSize()
@@ -192,6 +216,25 @@ local function draw_debug()
         term.write(gui.debug_buffer[i].msg)
         term.setBackgroundColor(colors.black)
         term.write(" ")
+    end
+end
+
+
+
+local function check_keyboard_shortcuts()
+    for i = 1, #(gui.keyboard_shortcuts) do
+        local targetKeys = gui.keyboard_shortcuts[i].keys
+        if #gui.hoding_keys ~= #targetKeys then
+            goto continue
+        end
+
+        for j = 1, #targetKeys do
+            if gui.hoding_keys[j] ~= targetKeys[j] then
+                goto continue
+            end
+        end
+        gui.keyboard_shortcuts[i].action()
+        ::continue::
     end
 end
 
@@ -214,6 +257,29 @@ local function pullEvent()
         gui.hover = { x = x, y = y }
     elseif event == 'mouse_up' then
         gui.hover = nil
+    elseif event == 'key' then
+        local has = false
+        for i = 1, #(gui.hoding_keys) do
+            if gui.hoding_keys[i] == param then
+                has = true
+                break
+            end
+        end
+        if not has then
+            table.insert(gui.hoding_keys, param)
+            check_keyboard_shortcuts()
+        end
+    elseif event == 'key_up' then
+        local index = 0
+        for i = 1, #(gui.hoding_keys) do
+            if gui.hoding_keys[i] == param then
+                index = i
+                break
+            end
+        end
+        if index > 0 then
+            table.remove(gui.hoding_keys, index)
+        end
     end
     return false
 end

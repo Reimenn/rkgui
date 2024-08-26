@@ -1,11 +1,12 @@
 local gui = require 'rkgui'
 local c_check = false
+local c_check2 = true
 local c_slider = 50
 local c_tabs = 2
 local c_counter = 0
 local c_input_text = 'Hello World!'
+local c_shortcut_counter = 0
 local selected_page = 1
-
 
 local pages = {
     {
@@ -36,6 +37,9 @@ Switch tabs at the top of the screen to see more content!
             if gui.button_big(("A BIG button (%d)"):format(c_counter)) then c_counter = c_counter + 1 end
             gui.space()
             c_check = gui.checkbox("A check box", c_check)
+            c_check2 = gui.checkbox("Can change use [LeftCtrl + E]", c_check2)
+            gui.space()
+            gui.label("[LeftCtrl + LeftAlt + W] " .. c_shortcut_counter)
         end
     },
     {
@@ -78,6 +82,14 @@ Switch tabs at the top of the screen to see more content!
         end
     }
 }
+
+gui.regist_shortcut('change check2', { keys.leftCtrl, keys.e }, function()
+    c_check2 = not c_check2
+end)
+
+gui.regist_shortcut('change check2', { keys.leftCtrl, keys.leftAlt, keys.w }, function()
+    c_shortcut_counter = c_shortcut_counter + 1
+end)
 
 gui.start_loop(function()
     local tabs = {}
