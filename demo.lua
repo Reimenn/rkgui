@@ -58,13 +58,12 @@ Switch tabs at the top of the screen to see more content!
             c_slider = gui.slider(c_slider, 33, 99, true, false)
             c_check = gui.checkbox("A check box", c_check)
             gui.row_end()
-            
+
             gui.space()
             if gui.button("Click me to input text") then
-                c_input_text = require('rkgui.input').get(gui,c_input_text,"Input some text:")
-            else
-                gui.label(c_input_text)
+                c_input_text = require('rkgui.input').get(gui, c_input_text, "Input some text:")
             end
+            gui.label(c_input_text)
         end
     },
     {

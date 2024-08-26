@@ -234,6 +234,9 @@ function gui.start_loop(view)
             break
         end
     end
+    gui.contaners_stack:pop()
+    gui.offset_stack:pop()
+    gui.dir_stack:pop()
     local w, h = term.getSize()
     term.setCursorPos(1, h)
 end
