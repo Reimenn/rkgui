@@ -19,11 +19,19 @@ gui.last_rect          = nil
 gui.keyboard_shortcuts = {}
 --- @type integer[]
 gui.hoding_keys        = {}
+--- styles
+gui.colors             = require 'rkgui.theme.default'()
+
+--- @param name string
+function gui.theme(name)
+    gui.colors = (require 'rkgui.theme.default')()
+    require('rkgui.theme.' .. name)()
+end
 
 --- Check if mouse hover on rect
 --- @param rect Rect
 --- @return boolean
-function gui.check_mouse_hover(rect)
+function gui.check_mouse_holding(rect)
     return gui.hover and rect:point_in(gui.hover.x, gui.hover.y)
 end
 
@@ -43,11 +51,11 @@ end
 
 --- @param text string
 --- @return boolean
-function gui.button(text) return components.button(gui, text) end
+function gui.button(text) return components.button(gui, text, false) end
 
 --- @param text string
 --- @return boolean
-function gui.button_big(text) return components.button_big(gui, text) end
+function gui.button_big(text) return components.button(gui, text, true) end
 
 --- @param text string
 --- @param align nil | 'l' | 'r' | 'c'
@@ -281,7 +289,7 @@ function gui.start_loop(view)
         gui.offset_stack:push(0)
         gui.dir_stack:push('tb')
 
-        term.setBackgroundColor(colors.black)
+        term.setBackgroundColor(gui.colors.background)
         term.clear()
 
         end_loop = view() or end_loop

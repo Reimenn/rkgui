@@ -3,53 +3,56 @@ local utils = require 'rkgui.utils'
 local module = {}
 
 --- @param text string
+--- @param big boolean
 --- @return boolean
-function module.button(gui, text)
+function module.button(gui, text, big)
     --- @module 'rkgui'
     gui = gui
 
-    local rect = gui.malloc_rect(#text + 2, 1)
-    local click = gui.check_mouse_release(rect)
-
-    if gui.check_mouse_hover(rect) then
-        paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y, colors.lightGray)
+    local rect
+    if big then
+        rect = gui.malloc_rect(#text + 2, 3)
     else
-        paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y, colors.gray)
+        rect = gui.malloc_rect(#text + 2, 1)
     end
 
-    term.setCursorPos(rect.x, rect.y)
-    term.write('[' .. text_tools.center(text, rect.w - 2) .. ']')
-    return click
-end
-
---- @param text string
---- @return boolean
-function module.button_big(gui, text)
-    --- @module 'rkgui'
-    gui = gui
-
-    local rect = gui.malloc_rect(#text + 2, 3)
     local click = gui.check_mouse_release(rect)
+    local text_color
 
-    if gui.check_mouse_hover(rect) then
-        paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1, colors.lightGray)
+    if click then
+        paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1,
+            gui.colors.button.click.background)
+        text_color = gui.colors.button.click.text
+    elseif gui.check_mouse_holding(rect) then
+        paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1,
+            gui.colors.button.holding.background)
+        text_color = gui.colors.button.holding.text
     else
-        paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1, colors.gray)
+        paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1,
+            gui.colors.button.background)
+        text_color = gui.colors.button.text
     end
 
-    term.setCursorPos(rect.x, rect.y + 1)
-    term.write('|' .. text_tools.center(text, rect.w - 2) .. '|')
-    term.setCursorPos(rect.x, rect.y)
-    term.write('+' .. string.rep(' ', rect.w - 2) .. '+')
-    term.setCursorPos(rect.x, rect.y + 2)
-    term.write('+' .. string.rep(' ', rect.w - 2) .. '+')
-
+    term.setTextColor(text_color)
+    if big then
+        term.setCursorPos(rect.x, rect.y + 1)
+        term.write('|' .. text_tools.center(text, rect.w - 2) .. '|')
+        term.setCursorPos(rect.x, rect.y)
+        term.write('+' .. string.rep(' ', rect.w - 2) .. '+')
+        term.setCursorPos(rect.x, rect.y + 2)
+        term.write('+' .. string.rep(' ', rect.w - 2) .. '+')
+    else
+        term.setCursorPos(rect.x, rect.y)
+        term.write('[' .. text_tools.center(text, rect.w - 2) .. ']')
+    end
     return click
 end
 
 --- @param text string
 --- @param align 'l' | 'c' | 'r' | nil
 function module.label(gui, text, align)
+    --- @module 'rkgui'
+    gui = gui
     local rect = gui.malloc_rect(#text, 1)
     if align == 'r' then
         text = text_tools.right(text, rect.w)
@@ -57,8 +60,8 @@ function module.label(gui, text, align)
         text = text_tools.center(text, rect.w)
     end
 
-    term.setTextColor(colors.white)
-    term.setBackgroundColor(colors.black)
+    term.setTextColor(gui.colors.label.text)
+    term.setBackgroundColor(gui.colors.label.background)
     term.setCursorPos(rect.x, rect.y)
     term.write(text)
 end
@@ -70,7 +73,6 @@ function module.checkbox(gui, text, checked)
     --- @module 'rkgui'
     gui = gui
     local rect = gui.malloc_rect(#text + 2, 1)
-
     --- @type Rect
     local click_rect = utils.shallow_copy(rect)
     click_rect.w = #text + 2
@@ -78,20 +80,34 @@ function module.checkbox(gui, text, checked)
         checked = not checked
     end
 
-    term.setCursorPos(rect.x, rect.y)
+    local box_color
+    local box_char
 
-    if gui.check_mouse_hover(click_rect) then
-        term.blit('=', '1', 'l')
+
+    if gui.check_mouse_holding(click_rect) then
+        box_color = gui.colors.checkbox.holding_box
+        box_char = '='
     elseif checked then
-        term.blit(' ', 'e', '5')
+        box_color = gui.colors.checkbox.checked_box
+        box_char = ' '
     else
-        term.blit(string.char(127), 'e', 'l')
+        box_color = gui.colors.checkbox.unchecked_box
+        box_char = string.char(127)
     end
 
-    term.blit(' ', '0', 'f')
-    term.setBackgroundColor(colors.black)
-    term.setTextColor(colors.white)
-    term.write(text)
+    term.setCursorPos(rect.x, rect.y)
+    if checked then
+        term.setBackgroundColor(box_color)
+        term.setTextColor(box_color)
+        term.write(' ')
+    else
+        term.setBackgroundColor(gui.colors.checkbox.background)
+        term.setTextColor(box_color)
+        term.write(box_char)
+    end
+    term.setBackgroundColor(gui.colors.checkbox.background)
+    term.setTextColor(gui.colors.checkbox.text)
+    term.write(' ' .. text)
     return checked
 end
 
@@ -110,27 +126,28 @@ function module.progress_bar(gui, percent, show_percent)
     --- @module 'rkgui'
     gui = gui
     local rect = gui.malloc_rect(10, 1)
-    term.setTextColor(colors.white)
+
+    term.setTextColor(gui.colors.progress_bar.text)
+    term.setBackgroundColor(gui.colors.progress_bar.background)
 
     -- percent title
     if show_percent then
         local title = text_tools.right(string.format('%d', percent * 100) .. '% ', 5)
         term.setCursorPos(rect.x, rect.y)
-        term.setBackgroundColor(colors.black)
         term.write(title)
         rect.x = rect.x + 5
         rect.w = rect.w - 5
     end
 
     -- background
-    term.setBackgroundColor(colors.gray)
+    term.setBackgroundColor(gui.colors.progress_bar.bar_background)
     term.setCursorPos(rect.x, rect.y)
     term.write(string.rep(' ', rect.w))
 
     -- progress
     if percent > 0 then
         term.setCursorPos(rect.x, rect.y)
-        term.setBackgroundColor(colors.white)
+        term.setBackgroundColor(gui.colors.progress_bar.bar)
         local width = (rect.w) * percent
         local width_floor = math.floor(width)
         term.write(string.rep(' ', width_floor))
@@ -139,8 +156,9 @@ function module.progress_bar(gui, percent, show_percent)
         local remain = width - width_floor
         if remain > 0 then
             local stage = math.floor(remain * 6) + 1
-            term.setBackgroundColor(colors.gray)
-            if stage == 6 then term.setBackgroundColor(colors.white) end
+            term.setTextColor(gui.colors.progress_bar.bar)
+            term.setBackgroundColor(gui.colors.progress_bar.bar_background)
+            if stage == 6 then term.setBackgroundColor(gui.colors.progress_bar.bar) end
             term.write(progress_bar_stage_table[stage])
         end
     end
@@ -156,10 +174,10 @@ function module.slider(gui, value, min, max, integer, show_number)
     --- @module 'rkgui'
     gui = gui
     local rect = gui.malloc_rect(20, 1)
-
-    term.setTextColor(colors.white)
-    term.setBackgroundColor(colors.black)
     term.setCursorPos(rect.x, rect.y)
+    term.setTextColor(gui.colors.slider.text)
+    term.setBackgroundColor(gui.colors.slider.background)
+
 
     -- number prefix
     if show_number then
@@ -177,14 +195,15 @@ function module.slider(gui, value, min, max, integer, show_number)
     end
 
     -- slider body
-    term.setTextColor(colors.gray)
+    term.setTextColor(gui.colors.slider.slider)
     term.write('<' .. string.rep(string.char(140), rect.w - 2) .. '>')
 
     -- value indicator
     local percent = (value - min) / (max - min)
     local indicator_left = (rect.w - 3) * percent
     term.setCursorPos(rect.x + indicator_left + 1, rect.y)
-    term.blit(' ', '0', '0')
+    term.setBackgroundColor(gui.colors.slider.indicator)
+    term.write(' ')
 
     -- input
     local slider_rect = utils.Rect.new()
@@ -192,7 +211,7 @@ function module.slider(gui, value, min, max, integer, show_number)
     slider_rect.y = rect.y
     slider_rect.w = rect.w - 2
     slider_rect.h = rect.h
-    if gui.check_mouse_hover(slider_rect) then
+    if gui.check_mouse_holding(slider_rect) then
         percent = (gui.hover.x - slider_rect.x) / (slider_rect.w - 1)
         value = (max - min) * percent + min
         if integer then
@@ -232,11 +251,11 @@ function module.tabs(gui, selected, tabs)
     for i = 1, #tabs do
         local text = ' ' .. tabs[i] .. ' '
         if selected == i then
-            term.setBackgroundColor(colors.lightGray)
-            term.setTextColor(colors.black)
+            term.setBackgroundColor(gui.colors.tabs.selected.background)
+            term.setTextColor(gui.colors.tabs.selected.text)
         else
-            term.setBackgroundColor(colors.gray)
-            term.setTextColor(colors.black)
+            term.setBackgroundColor(gui.colors.tabs.background)
+            term.setTextColor(gui.colors.tabs.text)
         end
         term.write(text)
     end

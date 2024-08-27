@@ -1,4 +1,5 @@
 local gui = require 'rkgui'
+local themes = { 'default', 'light', 'coffee' }
 local c_check = false
 local c_check2 = true
 local c_slider = 50
@@ -7,6 +8,8 @@ local c_counter = 0
 local c_input_text = 'Hello World!'
 local c_shortcut_counter = 0
 local selected_page = 1
+
+
 
 local pages = {
     {
@@ -28,6 +31,16 @@ Switch tabs at the top of the screen to see more content!
     {
         name = "Demo1",
         draw = function()
+            gui.space()
+            gui.row_start()
+            gui.label("Select theme:")
+            for i, k in pairs(themes) do
+                if gui.button(k) then
+                    gui.theme(k)
+                end
+            end
+            gui.row_end()
+            gui.space()
             gui.label("i am a label", 'l')
             gui.label("i am a label", 'c')
             gui.label("i am a label", 'r')
