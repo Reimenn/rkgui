@@ -20,23 +20,6 @@ gui.keyboard_shortcuts = {}
 --- @type integer[]
 gui.hoding_keys        = {}
 
-local function init()
-    term.setBackgroundColor(colors.black)
-    term.clear()
-    local w, h = term.getSize()
-    local rect = core.Rect.new()
-    rect.x = 1
-    rect.y = 1
-    rect.w = w
-    rect.h = h
-    gui.contaners_stack:clear()
-    gui.contaners_stack:push(rect)
-    gui.offset_stack:clear()
-    gui.offset_stack:push(0)
-    gui.dir_stack:clear()
-    gui.dir_stack:push('tb')
-end
-
 --- Check if mouse hover on rect
 --- @param rect Rect
 --- @return boolean
@@ -208,18 +191,21 @@ end
 
 --- draw debug info at bottom of the screen
 local function draw_debug()
-    local x, y = term.getSize()
+    if #(gui.debug_buffer) <= 0 then
+        return
+    end
+    local ox, oy = term.getCursorPos()
+    local _, h = term.getSize()
     local color = { colors.gray, colors.orange, colors.red }
-    term.setCursorPos(1, y)
+    term.setCursorPos(1, h)
     for i = #gui.debug_buffer, 1, -1 do
         term.setBackgroundColor(color[gui.debug_buffer[i].level + 1])
         term.write(gui.debug_buffer[i].msg)
         term.setBackgroundColor(colors.black)
         term.write(" ")
     end
+    term.setCursorPos(ox, oy)
 end
-
-
 
 local function check_keyboard_shortcuts()
     for i = 1, #(gui.keyboard_shortcuts) do
@@ -286,24 +272,27 @@ end
 
 --- @param view function
 function gui.start_loop(view)
-    while true do
-        init()
-        if view() then
-            break
-        end
-        if #(gui.debug_buffer) > 0 then
-            local x, y = term.getCursorPos()
-            draw_debug()
-            term.setCursorPos(x, y)
-        end
-        if pullEvent() then
-            break
-        end
+    local end_loop = false
+    while not end_loop do
+        local rect = core.Rect.new()
+        rect.x, rect.y = 1, 1
+        rect.w, rect.h = term.getSize()
+        gui.contaners_stack:push(rect)
+        gui.offset_stack:push(0)
+        gui.dir_stack:push('tb')
+
+        term.setBackgroundColor(colors.black)
+        term.clear()
+
+        end_loop = view() or end_loop
+        draw_debug()
+        end_loop = pullEvent() or end_loop
+
+        gui.contaners_stack:pop()
+        gui.offset_stack:pop()
+        gui.dir_stack:pop()
     end
-    gui.contaners_stack:pop()
-    gui.offset_stack:pop()
-    gui.dir_stack:pop()
-    local w, h = term.getSize()
+    local _, h = term.getSize()
     term.setCursorPos(1, h)
 end
 
