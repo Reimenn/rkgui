@@ -32,14 +32,14 @@ Switch tabs at the top of the screen to see more content!
         name = "Demo1",
         draw = function()
             gui.space()
-            gui.row_start()
-            gui.label("Select theme:")
-            for i, k in pairs(themes) do
-                if gui.button(k) then
-                    gui.theme(k)
+            gui.row(1, function()
+                gui.label("Select theme:")
+                for i, k in pairs(themes) do
+                    if gui.button(k) then
+                        gui.theme(k)
+                    end
                 end
-            end
-            gui.row_end()
+            end)
             gui.space()
             gui.label("i am a label", 'l')
             gui.label("i am a label", 'c')
@@ -70,17 +70,45 @@ Switch tabs at the top of the screen to see more content!
 
             gui.space()
             gui.label("Components in row")
-            gui.row_start()
-            gui.button("  >_<  ")
-            c_slider = gui.slider(c_slider, 33, 99, true, false)
-            c_check = gui.checkbox("A check box", c_check)
-            gui.row_end()
+            gui.row(1, function()
+                gui.button("  >_<  ")
+                gui.space()
+                c_slider = gui.slider(c_slider, 33, 99, true, false)
+                gui.space()
+                c_check = gui.checkbox("A check box", c_check)
+            end)
 
             gui.space()
             if gui.button("Click me to input text") then
                 c_input_text = require('rkgui.input').get(gui, c_input_text, "Input some text:")
             end
             gui.label(c_input_text)
+        end,
+    },
+    {
+        name = "Layout",
+        draw = function()
+            gui.label('<<Left      Right>>', 'c')
+            gui.row(10, function()
+                gui.col('40%', function()
+                    gui.space()
+                    c_check = gui.checkbox("Checkbox")
+                    gui.space()
+                    gui.button("button")
+                    gui.space()
+                    c_slider = gui.slider(c_slider, 33, 99, false, false)
+                end)
+                gui.col('20%', function()
+                end)
+                gui.col('+', function()
+                    for i = 1, 5 do 
+                        gui.label("Line " .. i)
+                        gui.progress_bar(i / 5, false)
+                    end
+                end)
+            end)
+            gui.space()
+            gui.button("OneLine")
         end
     },
     {

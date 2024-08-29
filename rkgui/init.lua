@@ -94,42 +94,64 @@ function gui.tabs(selected, tabs) return components.tabs(gui, selected, tabs) en
 
 function gui.space() gui.malloc_rect(1, 1) end
 
-function gui.row_start()
+--- Use `height` to specify the height of this row,
+--- you can use numbers 1, 2, 3... to indicate the specific height,
+--- or use a string such as "50%" to indicate the percentage height,
+--- or use "+" to fill the remaining height.
+--- @param height integer | string
+--- @param view fun() Draw the UI in the function
+function gui.row(height, view)
     gui.layouts:push(utils.Layout.new(
-        gui.malloc_rect(1, 1),
+        gui.malloc_rect('100%', height),
         'lr'
     ))
-end
-
-function gui.row_end()
+    view()
     gui.layouts:pop()
 end
 
---- @param min_w integer
---- @param min_h integer
+--- Use `width` to specify the width of this column,
+--- you can use numbers 1, 2, 3... to indicate the specific width,
+--- or use a string such as "50%" to indicate a percentage width,
+--- or use "+" to fill the remaining width.
+--- @param width integer | string
+--- @param view fun() Draw the UI in the function
+function gui.col(width, view)
+    gui.layouts:push(utils.Layout.new(
+        gui.malloc_rect(width, '100%'),
+        'tb'
+    ))
+    view()
+    gui.layouts:pop()
+end
+
+--- @param width integer|string|nil
+--- @param height integer|string|nil
 --- @return Rect
-function gui.malloc_rect(min_w, min_h)
+function gui.malloc_rect(width, height)
     --- @type Layout
     local layout = gui.layouts:peek()
     gui.last_rect = utils.Rect.new()
+
+    local w = utils.parse_size(width, layout.rect.w, layout.offset)
+    local h = utils.parse_size(height, layout.rect.h, layout.offset)
 
     if layout.dir == "tb" then
         gui.last_rect.x = layout.rect.x
         gui.last_rect.y = layout.rect.y + layout.offset
         gui.last_rect.w = layout.rect.w
-        gui.last_rect.h = min_h
+        gui.last_rect.h = h
         layout.offset = layout.offset + gui.last_rect.h
     elseif layout.dir == "lr" then
         gui.last_rect.x = layout.rect.x + layout.offset
         gui.last_rect.y = layout.rect.y
-        gui.last_rect.w = min_w
-        if layout.rect.h < min_h then
+        gui.last_rect.w = w
+        if layout.rect.h < h then
             local tb = gui.layouts:peek_last(function(ele) return ele.dir == 'tb' end)
-            local add = min_h - gui.last_rect.h - 1
+            local add = h - gui.last_rect.h - 1
             tb.offset = tb.offset + add
             layout.rect.h = layout.rect.h + add
         end
-        gui.last_rect.h = min_h
+        gui.last_rect.h = h
         layout.offset = layout.offset + gui.last_rect.w
     end
 
@@ -171,7 +193,6 @@ function gui.unregist_shotcut(name)
     end
 end
 
---- draw debug info at bottom of the screen
 local function draw_debug()
     if #(gui.debug_buffer) <= 0 then return end
 
@@ -181,7 +202,7 @@ local function draw_debug()
     term.setCursorPos(1, h)
     term.setTextColour(colors.white)
     for i = #gui.debug_buffer, 1, -1 do
-        local msg = gui.debug_buffer[i].msg
+        local msg = tostring(gui.debug_buffer[i].msg)
         local rect = utils.Rect.new()
         rect.x, rect.y = term.getCursorPos()
         rect.w, rect.h = #msg, 1

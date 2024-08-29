@@ -137,27 +137,31 @@ end
 
 --- @param value string | integer | nil
 --- @param max integer
---- @return integer | nil
-function model.parse_size(value, max)
+--- @param offset integer
+--- @return integer
+function model.parse_size(value, max, offset)
     if type(value) == "number" then
         return value
     end
     if type(value) == 'string' then
+        if value == '+' then
+            return max - offset
+        end
         local last = value:sub(#value, #value)
         if last == '%' then
             value = value:sub(1, #value - 1)
             local percent = tonumber(value) / 100
             if percent then
-                return math.ceil(percent * max)
+                return math.floor(percent * max)
             end
         else
             local number = tonumber(value)
             if number then
-                return math.ceil(number)
+                return math.floor(number)
             end
         end
     end
-    return nil
+    return max
 end
 
 return model
