@@ -1,12 +1,10 @@
-local core             = require 'rkgui.utils'
+local utils             = require 'rkgui.utils'
 local components       = require 'rkgui.components'
 local text_tools       = require 'rkgui.text'
 local gui              = {}
 
-gui.contaners_stack    = core.Stack.new()
-gui.offset_stack       = core.Stack.new()
-gui.dir_stack          = core.Stack.new()
-
+--- @type Stack
+gui.layouts            = utils.Stack.new()
 --- @type {x:integer,y:integer}
 gui.hover              = nil
 --- @type {name:string,args:{[integer]:any}}
@@ -20,7 +18,7 @@ gui.keyboard_shortcuts = {}
 --- @type integer[]
 gui.hoding_keys        = {}
 --- styles
-gui.colors             = require 'rkgui.theme.default'()
+gui.colors             = require 'rkgui.theme.default' ()
 
 --- @param name string
 function gui.theme(name)
@@ -63,7 +61,7 @@ function gui.label(text, align) components.label(gui, text, align) end
 
 --- @param text string
 function gui.multiline_label(text)
-    local total_w = gui.contaners_stack:peek().w
+    local total_w = gui.layouts:peek().rect.w
     local line = text_tools.wrap(text, total_w)
     for i = 1, #line do
         gui.label(line[i])
@@ -97,45 +95,42 @@ function gui.tabs(selected, tabs) return components.tabs(gui, selected, tabs) en
 function gui.space() gui.malloc_rect(1, 1) end
 
 function gui.row_start()
-    gui.contaners_stack:push(gui.malloc_rect(1, 1))
-    gui.offset_stack:push(0)
-    gui.dir_stack:push('lr')
+    gui.layouts:push(utils.Layout.new(
+        gui.malloc_rect(1, 1),
+        'lr'
+    ))
 end
 
 function gui.row_end()
-    gui.contaners_stack:pop()
-    gui.offset_stack:pop()
-    gui.dir_stack:pop()
+    gui.layouts:pop()
 end
 
 --- @param min_w integer
 --- @param min_h integer
 --- @return Rect
 function gui.malloc_rect(min_w, min_h)
-    local contaner = gui.contaners_stack:peek()
-    local dir = gui.dir_stack:peek()
-    local offset = gui.offset_stack:peek()
-    gui.last_rect = core.Rect.new()
+    --- @type Layout
+    local layout = gui.layouts:peek()
+    gui.last_rect = utils.Rect.new()
 
-    gui.offset_stack:pop()
-    if dir == "tb" then
-        gui.last_rect.x = contaner.x
-        gui.last_rect.y = contaner.y + offset
-        gui.last_rect.w = contaner.w
+    if layout.dir == "tb" then
+        gui.last_rect.x = layout.rect.x
+        gui.last_rect.y = layout.rect.y + layout.offset
+        gui.last_rect.w = layout.rect.w
         gui.last_rect.h = min_h
-        gui.offset_stack:push(min_h + offset)
-    elseif dir == "lr" then
-        gui.last_rect.x = contaner.x + offset
-        gui.last_rect.y = contaner.y
+        layout.offset = layout.offset + gui.last_rect.h
+    elseif layout.dir == "lr" then
+        gui.last_rect.x = layout.rect.x + layout.offset
+        gui.last_rect.y = layout.rect.y
         gui.last_rect.w = min_w
-        if contaner.h < min_h then
-            local p2 = gui.offset_stack:pop()
-            p2 = p2 + min_h - gui.last_rect.h - 1
-            gui.offset_stack:push(p2)
-            contaner.h = min_h
+        if layout.rect.h < min_h then
+            local tb = gui.layouts:peek_last(function(ele) return ele.dir == 'tb' end)
+            local add = min_h - gui.last_rect.h - 1
+            tb.offset = tb.offset + add
+            layout.rect.h = layout.rect.h + add
         end
         gui.last_rect.h = min_h
-        gui.offset_stack:push(min_w + offset)
+        layout.offset = layout.offset + gui.last_rect.w
     end
 
     return gui.last_rect
@@ -282,12 +277,10 @@ end
 function gui.start_loop(view)
     local end_loop = false
     while not end_loop do
-        local rect = core.Rect.new()
+        local rect = utils.Rect.new()
         rect.x, rect.y = 1, 1
         rect.w, rect.h = term.getSize()
-        gui.contaners_stack:push(rect)
-        gui.offset_stack:push(0)
-        gui.dir_stack:push('tb')
+        gui.layouts:push(utils.Layout.new(rect, 'tb'))
 
         term.setBackgroundColor(gui.colors.background)
         term.clear()
@@ -296,9 +289,7 @@ function gui.start_loop(view)
         draw_debug()
         end_loop = pullEvent() or end_loop
 
-        gui.contaners_stack:pop()
-        gui.offset_stack:pop()
-        gui.dir_stack:pop()
+        gui.layouts:pop()
     end
     local _, h = term.getSize()
     term.setCursorPos(1, h)

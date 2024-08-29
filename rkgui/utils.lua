@@ -59,7 +59,7 @@ end
 --- @param x integer
 --- @param y integer
 --- @return boolean
-function Rect:point_in(x,y)
+function Rect:point_in(x, y)
     return x >= self.x and x < self.x + self.w and y >= self.y and y < self.y + self.h
 end
 
@@ -86,6 +86,17 @@ function Stack:peek()
     return self.data[#self.data]
 end
 
+--- @param where fun(ele):boolean
+--- @return any | nil
+function Stack:peek_last(where)
+    for i = #self.data, 1, -1 do
+        if where(self.data[i]) then
+            return self.data[i]
+        end
+    end
+    return nil
+end
+
 --- @return integer
 function Stack:size()
     return #self.data
@@ -100,12 +111,53 @@ function Stack:clear()
     self.data = {}
 end
 
-function model.shallow_copy(obj) 
+--- @class Layout
+--- @field rect Rect
+--- @field offset integer
+--- @field dir 'tb' | 'lr'
+local Layout = {}
+model.Layout = Layout
+Layout.__index = model.Layout
+
+function Layout.new(rect, dir)
+    local inst = setmetatable({}, Layout)
+    inst.rect = rect
+    inst.offset = 0
+    inst.dir = dir
+    return inst
+end
+
+function model.shallow_copy(obj)
     local res = setmetatable({}, obj.__index)
-    for k,v in pairs(obj) do
+    for k, v in pairs(obj) do
         res[k] = v
     end
     return res
+end
+
+--- @param value string | integer | nil
+--- @param max integer
+--- @return integer | nil
+function model.parse_size(value, max)
+    if type(value) == "number" then
+        return value
+    end
+    if type(value) == 'string' then
+        local last = value:sub(#value, #value)
+        if last == '%' then
+            value = value:sub(1, #value - 1)
+            local percent = tonumber(value) / 100
+            if percent then
+                return math.ceil(percent * max)
+            end
+        else
+            local number = tonumber(value)
+            if number then
+                return math.ceil(number)
+            end
+        end
+    end
+    return nil
 end
 
 return model
