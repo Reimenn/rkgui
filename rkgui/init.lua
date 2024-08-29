@@ -1,4 +1,4 @@
-local utils             = require 'rkgui.utils'
+local utils            = require 'rkgui.utils'
 local components       = require 'rkgui.components'
 local text_tools       = require 'rkgui.text'
 local gui              = {}
@@ -136,40 +136,19 @@ function gui.malloc_rect(min_w, min_h)
     return gui.last_rect
 end
 
---- @param msg string
---- display debug info at bottom of screen
-function gui.debug_info(msg)
-    gui.debug_raw(msg, 0)
-end
-
---- @param msg string
---- display debug warnning at bottom of screen
-function gui.debug_warnning(msg)
-    gui.debug_raw(msg, 1)
-end
-
---- @param msg string
---- display debug error at bottom of screen
-function gui.debug_error(msg)
-    gui.debug_raw(msg, 2)
+--- @param msg any
+--- @param level? 'info'|'warnning'|'error'
+function gui.debug(msg, level)
+    if level == nil then level = 'info' end
+    table.insert(gui.debug_buffer, {
+        msg = msg,
+        level = level
+    })
 end
 
 --- clear debug infomations
 function gui.debug_clear()
     gui.debug_buffer = {}
-end
-
---- @param msg string
---- @param level integer
-function gui.debug_raw(msg, level)
-    gui.debug_buffer[#gui.debug_buffer + 1] = {
-        msg = msg,
-        level = level
-    }
-    if #gui.debug_buffer > 30 then
-        table.remove(gui.debug_buffer, 0)
-        table.remove(gui.debug_buffer, 0)
-    end
 end
 
 --- @param name string
@@ -194,19 +173,29 @@ end
 
 --- draw debug info at bottom of the screen
 local function draw_debug()
-    if #(gui.debug_buffer) <= 0 then
-        return
-    end
+    if #(gui.debug_buffer) <= 0 then return end
+
     local ox, oy = term.getCursorPos()
     local _, h = term.getSize()
-    local color = { colors.gray, colors.orange, colors.red }
+    local color = { info = colors.gray, warnning = colors.orange, error = colors.red }
     term.setCursorPos(1, h)
+    term.setTextColour(colors.white)
     for i = #gui.debug_buffer, 1, -1 do
-        term.setBackgroundColor(color[gui.debug_buffer[i].level + 1])
-        term.write(gui.debug_buffer[i].msg)
+        local msg = gui.debug_buffer[i].msg
+        local rect = utils.Rect.new()
+        rect.x, rect.y = term.getCursorPos()
+        rect.w, rect.h = #msg, 1
+        if gui.check_mouse_down(rect) then
+            table.remove(gui.debug_buffer, i)
+            break
+        end
+
+        term.setBackgroundColor(color[gui.debug_buffer[i].level])
+        term.write(msg)
         term.setBackgroundColor(colors.black)
         term.write(" ")
     end
+
     term.setCursorPos(ox, oy)
 end
 
