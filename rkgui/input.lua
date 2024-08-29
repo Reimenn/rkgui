@@ -96,21 +96,24 @@ function input.get(gui, value, title)
         -- draw underline
         gui.label(prefix .. string.rep(string.char(131), text_w))
         -- draw buttons
-        gui.row_start()
-        gui.label(string.rep(' ', left - 1 + text_w - 17))
-        if gui.button("Cancel") then
-            ok = false
-            return true
-        end
-        gui.space()
-        if gui.button("Submit") then
-            ok = true
-            return true
-        end
-        gui.row_end()
+        local rt = false
+        gui.row(1, function()
+            gui.label(string.rep(' ', left - 1 + text_w - 17))
+            if gui.button("Cancel") then
+                ok = false
+                rt = true
+            end
+            gui.space()
+            if gui.button("Submit") then
+                ok = true
+                rt = true
+            end
+        end)
+
         -- cursor
         term.setCursorPos(left + cursor - scroll, top)
         term.setCursorBlink(true)
+        return rt
     end)
 
     term.setCursorBlink(false)
