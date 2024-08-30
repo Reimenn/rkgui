@@ -168,7 +168,7 @@ function gui.debug(msg, level)
     })
 end
 
---- clear debug infomations
+--- clear debug information
 function gui.debug_clear()
     gui.debug_buffer = {}
 end
@@ -176,7 +176,7 @@ end
 --- @param name string
 --- @param keys string[]
 --- @param action fun()
-function gui.regist_shortcut(name, keys, action)
+function gui.add_shortcut(name, keys, action)
     table.insert(gui.keyboard_shortcuts, {
         name = name,
         keys = keys,
@@ -185,7 +185,7 @@ function gui.regist_shortcut(name, keys, action)
 end
 
 --- @param name string
-function gui.unregist_shotcut(name)
+function gui.remove_shortcut(name)
     for i = #gui.keyboard_shortcuts, 1, -1 do
         if gui.keyboard_shortcuts[i].name == name then
             table.remove(gui.keyboard_shortcuts, i)

@@ -124,11 +124,11 @@ Switch tabs at the top of the screen to see more content!
     }
 }
 
-gui.regist_shortcut('change check2', { keys.leftCtrl, keys.e }, function()
+gui.add_shortcut('change check2', { keys.leftCtrl, keys.e }, function()
     c_check2 = not c_check2
 end)
 
-gui.regist_shortcut('change check2', { keys.leftCtrl, keys.leftAlt, keys.w }, function()
+gui.add_shortcut('change check2', { keys.leftCtrl, keys.leftAlt, keys.w }, function()
     c_shortcut_counter = c_shortcut_counter + 1
 end)
 

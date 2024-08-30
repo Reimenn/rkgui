@@ -19,14 +19,14 @@ function input.get(gui, value, title)
     local cursor = #value + 1
     local scroll = 1
     if cursor > text_w then
-        scroll = cursor - text_w
+        scroll = cursor - text_w + 1
     end
     local function cursor_next()
         if cursor <= #value then
             cursor = cursor + 1
         end
         if cursor > text_w then
-            scroll = cursor - text_w
+            scroll = cursor - text_w + 1
         end
     end
     local function cursor_move_left()
@@ -56,11 +56,11 @@ function input.get(gui, value, title)
                 cursor_next()
             elseif param == keys.home then
                 cursor = 1
-                scroll = cursor
+                scroll = 1
             elseif param == keys['end'] then
                 cursor = #value + 1
                 if cursor > text_w then
-                    scroll = cursor - text_w
+                    scroll = cursor - text_w + 1
                 end
             elseif param == keys.backspace and cursor > 1 then
                 cursor_move_left()
@@ -81,7 +81,7 @@ function input.get(gui, value, title)
 
         local prefix = string.rep(' ', left - 1)
         -- draw title
-        for i = 0, (term_h / 2) - 3 do
+        for _ = 0, (term_h / 2) - 4 do
             gui.space()
         end
         -- draw title
@@ -90,9 +90,19 @@ function input.get(gui, value, title)
         else
             gui.label(prefix .. 'Input:')
         end
+        gui.space()
         -- draw value
-        local show_text = value:sub(scroll, scroll + text_w - 1)
-        gui.label(prefix .. show_text)
+        local show_text = ""
+        if scroll > 1 then
+            show_text = prefix:sub(0, #prefix - 1) .. string.char(17)
+        else
+            show_text = prefix
+        end
+        show_text = show_text .. value:sub(scroll, scroll + text_w - 1)
+        if scroll + text_w < #value + 1 then
+            show_text = show_text .. string.char(16)
+        end
+        gui.label(show_text)
         -- draw underline
         gui.label(prefix .. string.rep(string.char(131), text_w))
         -- draw buttons
@@ -112,6 +122,7 @@ function input.get(gui, value, title)
 
         -- cursor
         term.setCursorPos(left + cursor - scroll, top)
+        term.setTextColor(colors.red)
         term.setCursorBlink(true)
         return rt
     end)
