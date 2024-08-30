@@ -1,7 +1,3 @@
---- @type fun(text:string, width:integer):string[]
-local text_wrap = require('cc.strings').wrap
-
-
 local text = {}
 
 --- @param text string
@@ -42,7 +38,20 @@ end
 --- @param width integer
 --- @return string[]
 function text.wrap(source, width)
-    return text_wrap(source, width)
+    return require('cc.strings').wrap(source, width)
+end
+
+--- @param source string
+--- @param delimiter string
+--- @return string[]
+function text.split(source, delimiter)
+    return require('cc.strings').split(source, delimiter)
+end
+
+--- @param source string
+--- @return string
+function text.trim(source)
+    return source:match("^%s*(.-)%s*$")
 end
 
 --- @param source string

@@ -1,3 +1,5 @@
+local text_tools = require 'rkgui.text'
+
 --- @return string
 local function serializeTable(val, name, skipnewlines, depth)
     skipnewlines = skipnewlines or false
@@ -28,15 +30,15 @@ local function serializeTable(val, name, skipnewlines, depth)
     return tmp
 end
 
-local model = {}
+local utils = {}
 --- @class Rect
 --- @field x integer
 --- @field y integer
 --- @field w integer
 --- @field h integer
 local Rect = {}
-model.Rect = Rect
-Rect.__index = model.Rect
+utils.Rect = Rect
+Rect.__index = utils.Rect
 
 
 --- @return Rect
@@ -66,8 +68,8 @@ end
 --- @class Stack
 --- @field data table
 local Stack = {}
-model.Stack = Stack
-Stack.__index = model.Stack
+utils.Stack = Stack
+Stack.__index = utils.Stack
 
 --- @return Stack
 function Stack.new()
@@ -116,8 +118,8 @@ end
 --- @field offset integer
 --- @field dir 'tb' | 'lr'
 local Layout = {}
-model.Layout = Layout
-Layout.__index = model.Layout
+utils.Layout = Layout
+Layout.__index = utils.Layout
 
 function Layout.new(rect, dir)
     local inst = setmetatable({}, Layout)
@@ -127,7 +129,7 @@ function Layout.new(rect, dir)
     return inst
 end
 
-function model.shallow_copy(obj)
+function utils.shallow_copy(obj)
     local res = setmetatable({}, obj.__index)
     for k, v in pairs(obj) do
         res[k] = v
@@ -139,7 +141,7 @@ end
 --- @param max integer
 --- @param offset integer
 --- @return integer
-function model.parse_size(value, max, offset)
+function utils.parse_size(value, max, offset)
     if type(value) == "number" then
         return value
     end
@@ -164,4 +166,4 @@ function model.parse_size(value, max, offset)
     return max
 end
 
-return model
+return utils
