@@ -7,6 +7,7 @@ local c_tabs = 2
 local c_counter = 0
 local c_input_text = 'Hello World!'
 local c_shortcut_counter = 0
+local c_from = 1
 local selected_page = 1
 
 
@@ -88,8 +89,12 @@ Switch tabs at the top of the screen to see more content!
     {
         name = "Layout",
         draw = function()
-            gui.label('<<Left      Right>>', 'c')
-            gui.row(10, function()
+            gui.row(1, function()
+                gui.label("Left")
+                gui.reverse_row(1, function() gui.label("right") end)
+            end)
+
+            gui.row(8, function()
                 gui.col('40%', function()
                     gui.space()
                     c_check = gui.checkbox("Checkbox")
@@ -101,14 +106,29 @@ Switch tabs at the top of the screen to see more content!
                 gui.col('20%', function()
                 end)
                 gui.col('+', function()
-                    for i = 1, 5 do 
+                    for i = 1, 3 do
                         gui.label("Line " .. i)
-                        gui.progress_bar(i / 5, false)
+                        gui.progress_bar(i / 3, false)
                     end
                 end)
             end)
             gui.space()
-            gui.button("OneLine")
+            gui.button("One Line")
+
+            local draw_tab = function()
+                c_from = gui.tabs(c_from, { 'Left', 'Right' })
+            end
+            
+            gui.label("Click change diraction:")
+            if c_from == 1 then
+                gui.row(1, draw_tab)
+            else
+                gui.reverse_row(1, draw_tab)
+            end
+
+            gui.reverse_col('+', function()
+                gui.button("Bottom")
+            end)
         end
     },
     {

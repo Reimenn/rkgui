@@ -94,20 +94,31 @@ function gui.tabs(selected, tabs) return components.tabs(gui, selected, tabs) en
 
 function gui.space() gui.malloc_rect(1, 1) end
 
+--- @param width integer | string
+---@param height integer | string
+---@param dir 'lr'|'rl'|'tb'|'bt'
+---@param view fun()
+local function draw_in_layout(width, height, dir, view)
+    gui.layouts:push(utils.Layout.new(
+        gui.malloc_rect(width, height),
+        dir
+    ))
+    view()
+    gui.layouts:pop()
+end
+
 --- Use `height` to specify the height of this row,
 --- you can use numbers 1, 2, 3... to indicate the specific height,
 --- or use a string such as "50%" to indicate the percentage height,
 --- or use "+" to fill the remaining height.
 --- @param height integer | string
 --- @param view fun() Draw the UI in the function
-function gui.row(height, view)
-    gui.layouts:push(utils.Layout.new(
-        gui.malloc_rect('100%', height),
-        'lr'
-    ))
-    view()
-    gui.layouts:pop()
-end
+function gui.row(height, view) draw_in_layout('+', height, 'lr', view) end
+
+--- Like `row()` but reverse
+--- @param height integer | string
+--- @param view fun() Draw the UI in the function
+function gui.reverse_row(height, view) draw_in_layout('+', height, 'rl', view) end
 
 --- Use `width` to specify the width of this column,
 --- you can use numbers 1, 2, 3... to indicate the specific width,
@@ -115,14 +126,12 @@ end
 --- or use "+" to fill the remaining width.
 --- @param width integer | string
 --- @param view fun() Draw the UI in the function
-function gui.col(width, view)
-    gui.layouts:push(utils.Layout.new(
-        gui.malloc_rect(width, '100%'),
-        'tb'
-    ))
-    view()
-    gui.layouts:pop()
-end
+function gui.col(width, view) draw_in_layout(width, '+', 'tb', view) end
+
+--- Like `col()` but reverse
+--- @param width integer | string
+--- @param view fun() Draw the UI in the function
+function gui.reverse_col(width, view) draw_in_layout(width, '+', 'bt', view) end
 
 --- @param width integer|string|nil
 --- @param height integer|string|nil
@@ -141,6 +150,13 @@ function gui.malloc_rect(width, height)
         gui.last_rect.w = layout.rect.w
         gui.last_rect.h = h
         layout.offset = layout.offset + gui.last_rect.h
+    elseif layout.dir == "bt" then
+        gui.last_rect.x = layout.rect.x
+        gui.last_rect.y = layout.rect.y + layout.rect.h - layout.offset
+        gui.last_rect.w = layout.rect.w
+        gui.last_rect.h = h
+        layout.offset = layout.offset + gui.last_rect.h
+        gui.last_rect.y = gui.last_rect.y - gui.last_rect.h
     elseif layout.dir == "lr" then
         gui.last_rect.x = layout.rect.x + layout.offset
         gui.last_rect.y = layout.rect.y
@@ -152,6 +168,19 @@ function gui.malloc_rect(width, height)
             layout.rect.h = layout.rect.h + add
         end
         gui.last_rect.h = h
+        layout.offset = layout.offset + gui.last_rect.w
+    elseif layout.dir == "rl" then
+        gui.last_rect.x = layout.rect.x + layout.rect.w - layout.offset
+        gui.last_rect.y = layout.rect.y
+        gui.last_rect.w = w
+        if layout.rect.h < h then
+            local tb = gui.layouts:peek_last(function(ele) return ele.dir == 'tb' end)
+            local add = h - gui.last_rect.h - 1
+            tb.offset = tb.offset + add
+            layout.rect.h = layout.rect.h + add
+        end
+        gui.last_rect.h = h
+        gui.last_rect.x = gui.last_rect.x - gui.last_rect.w
         layout.offset = layout.offset + gui.last_rect.w
     end
 
