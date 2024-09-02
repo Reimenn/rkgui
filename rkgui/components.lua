@@ -217,6 +217,15 @@ function module.slider(gui, value, min, max, integer, show_number)
         if integer then
             value = math.ceil(value)
         end
+    elseif gui.last_event.name == 'mouse_scroll' and
+        slider_rect:point_in(gui.last_event.args[2], gui.last_event.args[3])
+    then
+        value = value - gui.last_event.args[1]
+        if value > max then
+            value = max
+        elseif value < min then
+            value = min
+        end
     end
 
     return value

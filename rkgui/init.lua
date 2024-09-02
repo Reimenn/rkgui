@@ -266,7 +266,7 @@ local function check_keyboard_shortcuts()
     end
 end
 
---- @return boolean "exit loop?"
+--- @return boolean exit loop?
 local function pullEvent()
     local timerId = os.startTimer(.1)
     local event, param, x, y = os.pullEventRaw()

@@ -63,7 +63,7 @@ Switch tabs at the top of the screen to see more content!
             gui.label("A progress bar")
             gui.progress_bar((os.time()) % 1, true)
             gui.space()
-            gui.label("A slider (33 to 99)")
+            gui.label("A slider (33 to 99), can use mouse scroll")
             c_slider = gui.slider(c_slider, 33, 99, true, true)
             gui.space()
             gui.label("A tab group, like top at the screen")
