@@ -36,15 +36,9 @@ end
 --- Check if mouse release on rect
 --- @param rect Rect
 --- @return boolean
-function gui.check_mouse_release(rect)
-    return gui.last_event.name == 'mouse_up' and rect:point_in(gui.last_event.args[2], gui.last_event.args[3])
-end
-
---- Check if mouse down on rect
---- @param rect Rect
---- @return boolean
-function gui.check_mouse_down(rect)
-    return gui.last_event.name == 'mouse_click' and rect:point_in(gui.last_event.args[2], gui.last_event.args[3])
+function gui.check_click(rect)
+    return (gui.last_event.name == 'mouse_up' and rect:point_in(gui.last_event.args[2], gui.last_event.args[3]))
+            or (gui.last_event.name == 'monitor_touch' and rect:point_in(gui.last_event.args[2], gui.last_event.args[3]))
 end
 
 --- @param text string
@@ -235,7 +229,7 @@ local function draw_debug()
         local rect = utils.Rect.new()
         rect.x, rect.y = term.getCursorPos()
         rect.w, rect.h = #msg, 1
-        if gui.check_mouse_down(rect) then
+        if gui.check_click(rect) then
             table.remove(gui.debug_buffer, i)
             break
         end

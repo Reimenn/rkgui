@@ -16,7 +16,7 @@ function module.button(gui, text, big)
         rect = gui.malloc_rect(#text + 2, 1)
     end
 
-    local click = gui.check_mouse_release(rect)
+    local click = gui.check_click(rect)
     local text_color
 
     if click then
@@ -76,7 +76,7 @@ function module.checkbox(gui, text, checked)
     --- @type Rect
     local click_rect = utils.shallow_copy(rect)
     click_rect.w = #text + 2
-    if gui.check_mouse_release(click_rect) then
+    if gui.check_click(click_rect) then
         checked = not checked
     end
 
@@ -211,21 +211,28 @@ function module.slider(gui, value, min, max, integer, show_number)
     slider_rect.y = rect.y
     slider_rect.w = rect.w - 2
     slider_rect.h = rect.h
+
     if gui.check_mouse_holding(slider_rect) then
         percent = (gui.hover.x - slider_rect.x) / (slider_rect.w - 1)
         value = (max - min) * percent + min
-        if integer then
-            value = math.ceil(value)
-        end
+    elseif gui.check_click(slider_rect) then
+        percent = (gui.last_event.args[2] - slider_rect.x) / (slider_rect.w - 1)
+        value = (max - min) * percent + min
     elseif gui.last_event.name == 'mouse_scroll' and
         slider_rect:point_in(gui.last_event.args[2], gui.last_event.args[3])
     then
         value = value - gui.last_event.args[1]
-        if value > max then
-            value = max
-        elseif value < min then
-            value = min
-        end
+    end
+
+    -- value check
+    if value > max then
+        value = max
+    elseif value < min then
+        value = min
+    end
+
+    if integer then
+        value = math.ceil(value)
     end
 
     return value
@@ -249,7 +256,7 @@ function module.tabs(gui, selected, tabs)
         local click_rect           = utils.Rect.new()
         click_rect.x, click_rect.y = check_x, rect.y
         click_rect.w, click_rect.h = #(tabs[i]) + 2, 1
-        if gui.check_mouse_release(click_rect) then
+        if gui.check_click(click_rect) then
             selected = i
         end
         check_x = check_x + click_rect.w
