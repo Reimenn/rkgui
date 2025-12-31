@@ -213,15 +213,15 @@ function module.slider(gui, value, min, max, integer, show_number)
     slider_rect.h = rect.h
 
     if gui.check_mouse_holding(slider_rect) then
-        percent = (gui.hover.x - slider_rect.x) / (slider_rect.w - 1)
+        percent = (gui._hover.x - slider_rect.x) / (slider_rect.w - 1)
         value = (max - min) * percent + min
     elseif gui.check_click(slider_rect) then
-        percent = (gui.last_event.args[2] - slider_rect.x) / (slider_rect.w - 1)
+        percent = (gui._last_event.args[2] - slider_rect.x) / (slider_rect.w - 1)
         value = (max - min) * percent + min
-    elseif gui.last_event.name == 'mouse_scroll' and
-        slider_rect:point_in(gui.last_event.args[2], gui.last_event.args[3])
+    elseif gui._last_event.name == 'mouse_scroll' and
+        slider_rect:point_in(gui._last_event.args[2], gui._last_event.args[3])
     then
-        value = value - gui.last_event.args[1]
+        value = value - gui._last_event.args[1]
     end
 
     -- value check

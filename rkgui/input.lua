@@ -39,7 +39,7 @@ function input.get(gui, value, title)
     end
 
     local ok = false
-    gui.start_loop(function()
+    gui.start(function()
         -- update term size value
         term_w, term_h = term.getSize()
         left = math.max(2, math.floor(term_w * 0.2))
@@ -47,8 +47,8 @@ function input.get(gui, value, title)
         text_w = term_w - left - left + 2
 
         -- input event
-        local event = gui.last_event.name
-        local param = gui.last_event.args[1]
+        local event = gui._last_event.name
+        local param = gui._last_event.args[1]
         if event == 'key' then
             if param == keys.left then
                 cursor_move_left()
