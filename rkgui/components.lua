@@ -195,8 +195,13 @@ function module.slider(gui, value, min, max, integer, show_number)
     end
 
     -- slider body
+    term.setTextColor(gui.colors.slider.indicator)
+    term.write('[')
     term.setTextColor(gui.colors.slider.slider)
-    term.write('<' .. string.rep(string.char(140), rect.w - 2) .. '>')
+    term.write(string.rep(string.char(140), rect.w - 2))
+    term.setTextColor(gui.colors.slider.indicator)
+    term.write(']')
+    
 
     -- value indicator
     local percent = (value - min) / (max - min)
