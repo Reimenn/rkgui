@@ -8,7 +8,7 @@ local c_counter = 0
 local c_input_text = 'Hello World!'
 local c_shortcut_counter = 0
 local c_from = 1
-local selected_page = 1
+local selected_page = 3
 
 
 

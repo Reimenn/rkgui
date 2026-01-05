@@ -201,7 +201,7 @@ function module.slider(gui, value, min, max, integer, show_number)
     term.write(string.rep(string.char(140), rect.w - 2))
     term.setTextColor(gui.colors.slider.indicator)
     term.write(']')
-    
+
 
     -- value indicator
     local percent = (value - min) / (max - min)
@@ -250,21 +250,25 @@ function module.tabs(gui, selected, tabs)
     --- @module 'rkgui'
     gui = gui
 
-    -- width check & malloc rect
+    -- width cauculate & malloc rect
     local need_width = 0
-    for i = 1, #tabs do need_width = need_width + #(tabs[i]) + 2 end
+    local widths = {}
+    for i = 1, #tabs do
+        local w = #(tabs[i]) + 2
+        need_width = need_width + w
+        table.insert(widths, w)
+    end
     local rect = gui.malloc_rect(need_width, 1)
 
     -- input check
-    local check_x = rect.x
+    local click_rect = utils.Rect.new()
+    click_rect.x, click_rect.y = rect.x, rect.y
     for i = 1, #tabs do
-        local click_rect           = utils.Rect.new()
-        click_rect.x, click_rect.y = check_x, rect.y
-        click_rect.w, click_rect.h = #(tabs[i]) + 2, 1
+        click_rect.w, click_rect.h = widths[i], 1
         if gui.check_click(click_rect) then
             selected = i
         end
-        check_x = check_x + click_rect.w
+        click_rect.x = click_rect.x + click_rect.w
     end
 
     -- draw
