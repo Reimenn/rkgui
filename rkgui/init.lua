@@ -86,8 +86,9 @@ end
 
 --- @param selected integer
 --- @param tabs {[integer]:string}
+--- @param full boolean
 --- @return integer
-function gui.tabs(selected, tabs) return components.tabs(gui, selected, tabs) end
+function gui.tabs(selected, tabs, full) return components.tabs(gui, selected, tabs, full) end
 
 function gui.space() gui.malloc_rect(1, 1) end
 

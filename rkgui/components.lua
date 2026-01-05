@@ -245,20 +245,41 @@ end
 
 --- @param selected integer
 --- @param tabs {[integer]:string}
+--- @param full boolean|nil
 --- @return integer
-function module.tabs(gui, selected, tabs)
+function module.tabs(gui, selected, tabs, full)
     --- @module 'rkgui'
     gui = gui
 
-    -- width cauculate & malloc rect
     local need_width = 0
     local widths = {}
+    --- @type Rect
+    local rect
+
+    -- width cauculate & malloc rect
     for i = 1, #tabs do
         local w = #(tabs[i]) + 2
         need_width = need_width + w
         table.insert(widths, w)
     end
-    local rect = gui.malloc_rect(need_width, 1)
+
+    if full then
+        rect = gui.malloc_rect('+', 1)
+        while need_width < rect.w do
+            local min_v = rect.w
+            local min_i = 1
+            for i = 1, #widths do
+                if widths[i] < min_v then
+                    min_v = widths[i]
+                    min_i = i
+                end
+            end
+            need_width = need_width + 1
+            widths[min_i] = widths[min_i] + 1
+        end
+    else
+        rect = gui.malloc_rect(need_width, 1)
+    end
 
     -- input check
     local click_rect = utils.Rect.new()
@@ -274,7 +295,9 @@ function module.tabs(gui, selected, tabs)
     -- draw
     term.setCursorPos(rect.x, rect.y)
     for i = 1, #tabs do
-        local text = ' ' .. tabs[i] .. ' '
+        local left_space = 1
+        local right_space = widths[i] - #(tabs[i]) - 1
+        local text = string.rep(' ', left_space) .. tabs[i] .. string.rep(' ', right_space)
         if selected == i then
             term.setBackgroundColor(gui.colors.tabs.selected.background)
             term.setTextColor(gui.colors.tabs.selected.text)

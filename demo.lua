@@ -36,6 +36,7 @@ Switch tabs at the top of the screen to see more content!
             gui.row(1, function()
                 gui.label("Select theme:")
                 for i, k in pairs(themes) do
+                    if i > 1 then gui.space() end
                     if gui.button(k) then
                         gui.theme(k)
                     end
@@ -118,7 +119,7 @@ Switch tabs at the top of the screen to see more content!
             local draw_tab = function()
                 c_from = gui.tabs(c_from, { 'Left', 'Right' })
             end
-            
+
             gui.label("Click change diraction:")
             if c_from == 1 then
                 gui.row(1, draw_tab)
@@ -152,13 +153,13 @@ gui.add_shortcut('change check2', { keys.leftCtrl, keys.leftAlt, keys.w }, funct
     c_shortcut_counter = c_shortcut_counter + 1
 end)
 
-gui.add_shortcut('exit check', {keys.leftCtrl, keys.c}, function()
+gui.add_shortcut('exit check', { keys.leftCtrl, keys.c }, function()
     gui.stop()
 end)
 
 gui.start(function()
     local tabs = {}
     for i = 1, #pages do table.insert(tabs, pages[i].name) end
-    selected_page = gui.tabs(selected_page, tabs)
+    selected_page = gui.tabs(selected_page, tabs, true)
     pages[selected_page].draw()
 end)
