@@ -83,11 +83,7 @@ function module.checkbox(gui, text, checked)
     local box_color
     local box_char
 
-
-    if gui.check_mouse_holding(click_rect) then
-        box_color = gui.colors.checkbox.holding_box
-        box_char = '='
-    elseif checked then
+    if checked then
         box_color = gui.colors.checkbox.checked_box
         box_char = ' '
     else
@@ -108,6 +104,48 @@ function module.checkbox(gui, text, checked)
     term.setBackgroundColor(gui.colors.checkbox.background)
     term.setTextColor(gui.colors.checkbox.text)
     term.write(' ' .. text)
+    return checked
+end
+
+--- @param text string
+--- @param checked boolean
+--- @return boolean
+function module.toggle(gui, text, checked)
+    --- @module 'rkgui'
+    gui = gui
+    local rect = gui.malloc_rect(#text + 4, 1)
+
+    local click = gui.check_click(rect)
+    if click then
+        checked = not checked
+    end
+
+    term.setCursorPos(rect.x, rect.y)
+    if gui.check_mouse_holding(rect) then
+        term.setBackgroundColor(gui.colors.toggle.checked_box)
+        term.write(' ')
+        term.setBackgroundColor(gui.colors.toggle.toggle)
+        term.write(' ')
+        term.setBackgroundColor(gui.colors.toggle.background)
+        term.setTextColor(gui.colors.toggle.unchecked_box)
+        term.write(string.char(127))
+    elseif checked then
+        term.setBackgroundColor(gui.colors.toggle.checked_box)
+        term.write('  ')
+        term.setBackgroundColor(gui.colors.toggle.toggle)
+        term.write(' ')
+    else
+        term.setBackgroundColor(gui.colors.toggle.toggle)
+        term.write(' ')
+        term.setBackgroundColor(gui.colors.toggle.background)
+        term.setTextColor(gui.colors.toggle.unchecked_box)
+        term.write(string.char(127) .. string.char(127))
+    end
+
+    term.setBackgroundColor(gui.colors.toggle.background)
+    term.setTextColor(gui.colors.toggle.text)
+    term.write(' ' .. text)
+
     return checked
 end
 

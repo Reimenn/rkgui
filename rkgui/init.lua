@@ -65,10 +65,15 @@ function gui.multiline_label(text)
     end
 end
 
---- @parma
---- @parma checked boolean
+--- @param text string
+--- @param checked boolean
 --- @return boolean
 function gui.checkbox(text, checked) return components.checkbox(gui, text, checked) end
+
+--- @param text string
+--- @param checked boolean
+--- @return boolean
+function gui.toggle(text, checked) return components.toggle(gui, text, checked) end
 
 --- @param percent number [0,1]
 --- @param show_percent boolean

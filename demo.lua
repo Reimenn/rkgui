@@ -8,7 +8,7 @@ local c_counter = 0
 local c_input_text = 'Hello World!'
 local c_shortcut_counter = 0
 local c_from = 1
-local selected_page = 3
+local selected_page = 2
 
 
 
@@ -52,7 +52,7 @@ Switch tabs at the top of the screen to see more content!
             if gui.button_big(("A BIG button (%d)"):format(c_counter)) then c_counter = c_counter + 1 end
             gui.space()
             c_check = gui.checkbox("A check box", c_check)
-            c_check2 = gui.checkbox("Can change use [LeftCtrl + E]", c_check2)
+            c_check2 = gui.toggle("Can change use [LeftCtrl + E]", c_check2)
             gui.space()
             gui.label("[LeftCtrl + LeftAlt + W] " .. c_shortcut_counter)
         end

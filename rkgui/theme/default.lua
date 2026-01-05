@@ -21,8 +21,14 @@ return function()
             background = colors.black,
             text = colors.white,
             checked_box = colors.green,
-            unchecked_box = colors.red,
-            holding_box = colors.orange,
+            unchecked_box = colors.gray,
+        },
+        toggle = {
+            background = colors.black,
+            text = colors.white,
+            toggle = colors.white,
+            checked_box = colors.green,
+            unchecked_box = colors.gray,
         },
         progress_bar = {
             background = colors.black,
