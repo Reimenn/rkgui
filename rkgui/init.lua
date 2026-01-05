@@ -86,7 +86,7 @@ end
 
 --- @param selected integer
 --- @param tabs {[integer]:string}
---- @param full boolean
+--- @param full boolean|nil
 --- @return integer
 function gui.tabs(selected, tabs, full) return components.tabs(gui, selected, tabs, full) end
 
