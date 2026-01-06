@@ -1,54 +1,81 @@
+local Theme = require 'rkgui.theme'
+
 return function()
-    return {
+    local t = Theme.new()
+    t.map = {
         background = colors.black,
+        color = colors.white,
         button = {
             background = colors.gray,
-            text = colors.white,
+            color = colors.white,
             holding = {
                 background = colors.lightGray,
-                text = colors.white,
+                color = colors.white,
             },
             click = {
                 background = colors.black,
-                text = colors.white,
+                color = colors.white,
             }
         },
         label = {
-            background = colors.black,
-            text = colors.white,
         },
         checkbox = {
-            background = colors.black,
-            text = colors.white,
-            checked_box = colors.green,
-            unchecked_box = colors.gray,
+            checked = {
+                color = colors.green,
+                background = colors.green,
+                char = ' '
+            },
+            unchecked = {
+                color = colors.gray,
+                char = string.char(127)
+            },
         },
         toggle = {
-            background = colors.black,
-            text = colors.white,
-            toggle = colors.white,
-            checked_box = colors.green,
-            unchecked_box = colors.gray,
+            thumb = {
+                color = colors.white,
+                background = colors.white,
+                char = ' '
+            },
+            track = {
+                on = {
+                    color = colors.green,
+                    background = colors.green,
+                    char = ' '
+                },
+                off = {
+                    color = colors.gray,
+                    char = string.char(127)
+                }
+            }
         },
-        progress_bar = {
-            background = colors.black,
-            text = colors.white,
-            bar_background = colors.gray,
-            bar = colors.white
+        progress = {
+            bar = {
+                background = colors.gray,
+                color = colors.white
+            }
         },
         slider = {
-            background = colors.black,
-            text = colors.white,
-            slider = colors.gray,
-            indicator = colors.white,
+            slider = {
+                color = colors.gray,
+                char = string.char(140)
+            },
+            endpoint = {
+                color = colors.white
+            },
+            indicator = {
+                color = colors.white,
+                background = colors.white,
+                char = ' '
+            },
         },
         tabs = {
             background = colors.gray,
-            text = colors.black,
+            color = colors.black,
             selected = {
                 background = colors.lightGray,
-                text = colors.black,
+                color = colors.black,
             },
         }
     }
+    return t
 end

@@ -17,23 +17,18 @@ function module.button(gui, text, big)
     end
 
     local click = gui.check_click(rect)
-    local text_color
 
     if click then
-        paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1,
-            gui.colors.button.click.background)
-        text_color = gui.colors.button.click.text
+        gui.theme:apply('button.click')
+        paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
     elseif gui.check_mouse_holding(rect) then
-        paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1,
-            gui.colors.button.holding.background)
-        text_color = gui.colors.button.holding.text
+        gui.theme:apply('button.holding')
+        paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
     else
-        paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1,
-            gui.colors.button.background)
-        text_color = gui.colors.button.text
+        gui.theme:apply('button')
+        paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
     end
 
-    term.setTextColor(text_color)
     if big then
         term.setCursorPos(rect.x, rect.y + 1)
         term.write('|' .. text_tools.center(text, rect.w - 2) .. '|')
@@ -60,10 +55,8 @@ function module.label(gui, text, align)
         text = text_tools.center(text, rect.w)
     end
 
-    term.setTextColor(gui.colors.label.text)
-    term.setBackgroundColor(gui.colors.label.background)
     term.setCursorPos(rect.x, rect.y)
-    term.write(text)
+    gui.theme:draw_string('label', text)
 end
 
 --- @param text string
@@ -80,30 +73,13 @@ function module.checkbox(gui, text, checked)
         checked = not checked
     end
 
-    local box_color
-    local box_char
-
-    if checked then
-        box_color = gui.colors.checkbox.checked_box
-        box_char = ' '
-    else
-        box_color = gui.colors.checkbox.unchecked_box
-        box_char = string.char(127)
-    end
-
     term.setCursorPos(rect.x, rect.y)
     if checked then
-        term.setBackgroundColor(box_color)
-        term.setTextColor(box_color)
-        term.write(' ')
+        gui.theme:draw_char('checkbox.checked')
     else
-        term.setBackgroundColor(gui.colors.checkbox.background)
-        term.setTextColor(box_color)
-        term.write(box_char)
+        gui.theme:draw_char('checkbox.unchecked')
     end
-    term.setBackgroundColor(gui.colors.checkbox.background)
-    term.setTextColor(gui.colors.checkbox.text)
-    term.write(' ' .. text)
+    gui.theme:draw_string('checkbox', ' ' .. text)
     return checked
 end
 
@@ -122,29 +98,18 @@ function module.toggle(gui, text, checked)
 
     term.setCursorPos(rect.x, rect.y)
     if gui.check_mouse_holding(rect) then
-        term.setBackgroundColor(gui.colors.toggle.checked_box)
-        term.write(' ')
-        term.setBackgroundColor(gui.colors.toggle.toggle)
-        term.write(' ')
-        term.setBackgroundColor(gui.colors.toggle.background)
-        term.setTextColor(gui.colors.toggle.unchecked_box)
-        term.write(string.char(127))
+        gui.theme:draw_char('toggle.track.on')
+        gui.theme:draw_char('toggle.thumb')
+        gui.theme:draw_char('toggle.track.off')
     elseif checked then
-        term.setBackgroundColor(gui.colors.toggle.checked_box)
-        term.write('  ')
-        term.setBackgroundColor(gui.colors.toggle.toggle)
-        term.write(' ')
+        gui.theme:draw_char('toggle.track.on', 2)
+        gui.theme:draw_char('toggle.thumb')
     else
-        term.setBackgroundColor(gui.colors.toggle.toggle)
-        term.write(' ')
-        term.setBackgroundColor(gui.colors.toggle.background)
-        term.setTextColor(gui.colors.toggle.unchecked_box)
-        term.write(string.char(127) .. string.char(127))
+        gui.theme:draw_char('toggle.thumb')
+        gui.theme:draw_char('toggle.track.off', 2)
     end
 
-    term.setBackgroundColor(gui.colors.toggle.background)
-    term.setTextColor(gui.colors.toggle.text)
-    term.write(' ' .. text)
+    gui.theme:draw_string('toggle', ' ' .. text)
 
     return checked
 end
@@ -165,27 +130,24 @@ function module.progress_bar(gui, percent, show_percent)
     gui = gui
     local rect = gui.malloc_rect(10, 1)
 
-    term.setTextColor(gui.colors.progress_bar.text)
-    term.setBackgroundColor(gui.colors.progress_bar.background)
-
     -- percent title
     if show_percent then
         local title = text_tools.right(string.format('%d', percent * 100) .. '% ', 5)
         term.setCursorPos(rect.x, rect.y)
-        term.write(title)
+        gui.theme:draw_string('progress', title)
         rect.x = rect.x + 5
         rect.w = rect.w - 5
     end
 
     -- background
-    term.setBackgroundColor(gui.colors.progress_bar.bar_background)
+
     term.setCursorPos(rect.x, rect.y)
-    term.write(string.rep(' ', rect.w))
+    gui.theme:draw_string('progress.bar', string.rep(' ', rect.w))
 
     -- progress
     if percent > 0 then
         term.setCursorPos(rect.x, rect.y)
-        term.setBackgroundColor(gui.colors.progress_bar.bar)
+        term.setBackgroundColor(gui.theme:get('progress.bar.color'))
         local width = (rect.w) * percent
         local width_floor = math.floor(width)
         term.write(string.rep(' ', width_floor))
@@ -194,9 +156,9 @@ function module.progress_bar(gui, percent, show_percent)
         local remain = width - width_floor
         if remain > 0 then
             local stage = math.floor(remain * 6) + 1
-            term.setTextColor(gui.colors.progress_bar.bar)
-            term.setBackgroundColor(gui.colors.progress_bar.bar_background)
-            if stage == 6 then term.setBackgroundColor(gui.colors.progress_bar.bar) end
+            term.setBackgroundColor(gui.theme:get('progress.bar.background'))
+            term.setTextColor(gui.theme:get('progress.bar.color'))
+            if stage == 6 then term.setBackgroundColor(gui.theme:get('progress.bar.color')) end
             term.write(progress_bar_stage_table[stage])
         end
     end
@@ -213,9 +175,6 @@ function module.slider(gui, value, min, max, integer, show_number)
     gui = gui
     local rect = gui.malloc_rect(20, 1)
     term.setCursorPos(rect.x, rect.y)
-    term.setTextColor(gui.colors.slider.text)
-    term.setBackgroundColor(gui.colors.slider.background)
-
 
     -- number prefix
     if show_number then
@@ -227,26 +186,22 @@ function module.slider(gui, value, min, max, integer, show_number)
             local max_number_len = math.max(#(max .. ''), 4) + 2
             prefix = text_tools.right(string.format('%.1f', value), max_number_len) .. ' '
         end
-        term.write(prefix)
+        gui.theme:draw_string('slider', prefix)
         rect.x = rect.x + #prefix
         rect.w = rect.w - #prefix
     end
 
     -- slider body
-    term.setTextColor(gui.colors.slider.indicator)
-    term.write('[')
-    term.setTextColor(gui.colors.slider.slider)
-    term.write(string.rep(string.char(140), rect.w - 2))
-    term.setTextColor(gui.colors.slider.indicator)
-    term.write(']')
+    gui.theme:draw_string('slider.endpoint', '[')
+    gui.theme:draw_char('slider.slider', rect.w - 2)
+    gui.theme:draw_string('slider.endpoint', ']')
 
 
     -- value indicator
     local percent = (value - min) / (max - min)
     local indicator_left = (rect.w - 3) * percent
     term.setCursorPos(rect.x + indicator_left + 1, rect.y)
-    term.setBackgroundColor(gui.colors.slider.indicator)
-    term.write(' ')
+    gui.theme:draw_char('slider.indicator')
 
     -- input
     local slider_rect = utils.Rect.new()
@@ -337,13 +292,10 @@ function module.tabs(gui, selected, tabs, full)
         local right_space = widths[i] - #(tabs[i]) - 1
         local text = string.rep(' ', left_space) .. tabs[i] .. string.rep(' ', right_space)
         if selected == i then
-            term.setBackgroundColor(gui.colors.tabs.selected.background)
-            term.setTextColor(gui.colors.tabs.selected.text)
+            gui.theme:draw_string('tabs.selected', text)
         else
-            term.setBackgroundColor(gui.colors.tabs.background)
-            term.setTextColor(gui.colors.tabs.text)
+            gui.theme:draw_string('tabs', text)
         end
-        term.write(text)
     end
 
     return selected

@@ -62,4 +62,26 @@ function text.removeAt(source, pos)
     return source
 end
 
+--- @param source string
+--- @param limiter string
+--- @return table
+function text.split(source, limiter)
+    local res = {}
+    local buf = ""
+    for i = 1, #source do
+        if source:sub(i, i) == limiter then
+            if #buf > 0 then
+                table.insert(res, buf)
+                buf = ""
+            end
+        else
+            buf = buf .. source:sub(i, i)
+        end
+    end
+    if #buf > 0 then
+        table.insert(res, buf)
+    end
+    return res
+end
+
 return text

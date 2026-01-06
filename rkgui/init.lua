@@ -3,8 +3,8 @@ local components        = require 'rkgui.components'
 local text_tools        = require 'rkgui.text'
 local gui               = {}
 
---- styles
-gui.colors              = require 'rkgui.theme.default' ()
+--- @type Theme
+gui.theme               = require 'rkgui.theme.default' ()
 --- @type Rect
 gui.last_rect           = nil
 
@@ -23,11 +23,6 @@ gui._hoding_keys        = {}
 --- @type boolean
 gui._end_loop           = false
 
---- @param name string
-function gui.theme(name)
-    gui.colors = (require 'rkgui.theme.default')()
-    require('rkgui.theme.' .. name)()
-end
 
 --- Check if mouse hover on rect
 --- @param rect Rect
@@ -326,7 +321,7 @@ function gui.start(view)
         rect.w, rect.h = term.getSize()
         gui._layouts:push(utils.Layout.new(rect, 'tb'))
 
-        term.setBackgroundColor(gui.colors.background)
+        gui.theme:apply('')
         term.clear()
 
         end_loop = view() or end_loop
