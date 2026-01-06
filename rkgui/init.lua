@@ -314,6 +314,7 @@ end
 --- @param view function
 function gui.start(view)
     gui._end_loop = false
+    gui._last_event = {}
     local end_loop = false
     while not end_loop and not gui._end_loop do
         local rect = utils.Rect.new()
