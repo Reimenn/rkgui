@@ -7,7 +7,6 @@ return function()
         color = colors.white,
         button = {
             background = colors.gray,
-            color = colors.white,
             holding = {
                 background = colors.lightGray,
                 color = colors.white,

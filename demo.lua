@@ -38,7 +38,8 @@ Switch tabs at the top of the screen to see more content!
                 for i, k in pairs(themes) do
                     if i > 1 then gui.space() end
                     if gui.button(k) then
-                        gui.theme(k)
+                        local t = require ('rkgui.theme.' .. k)()
+                        gui.theme = t
                     end
                 end
             end)
