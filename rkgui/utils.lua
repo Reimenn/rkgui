@@ -5,7 +5,9 @@ local function serializeTable(val, name, skipnewlines, depth)
 
     local tmp = string.rep(" ", depth)
 
-    if name then tmp = tmp .. name .. " = " end
+    if name then
+        tmp = tmp .. name .. " = "
+    end
 
     if type(val) == "table" then
         tmp = tmp .. "{" .. (not skipnewlines and "\n" or "")
@@ -30,10 +32,10 @@ end
 
 local model = {}
 --- @class Rect
---- @field x integer
---- @field y integer
---- @field w integer
---- @field h integer
+--- @field x number
+--- @field y number
+--- @field w number
+--- @field h number
 local Rect = {}
 model.Rect = Rect
 Rect.__index = model.Rect
@@ -49,15 +51,13 @@ function Rect.new()
     return inst
 end
 
---- @param self Rect
 --- @return string
 function Rect:__tostring()
     return serializeTable(self)
 end
 
---- @param self Rect
---- @param x integer
---- @param y integer
+--- @param x number
+--- @param y number
 --- @return boolean
 function Rect:point_in(x, y)
     return x >= self.x and x < self.x + self.w and y >= self.y and y < self.y + self.h
@@ -97,7 +97,7 @@ function Stack:peek_last(where)
     return nil
 end
 
---- @return integer
+--- @return number
 function Stack:size()
     return #self.data
 end
@@ -113,7 +113,7 @@ end
 
 --- @class Layout
 --- @field rect Rect
---- @field offset integer
+--- @field offset number
 --- @field dir 'tb' | 'lr'
 local Layout = {}
 model.Layout = Layout
@@ -135,10 +135,10 @@ function model.shallow_copy(obj)
     return res
 end
 
---- @param value string | integer | nil
---- @param max integer
---- @param offset integer
---- @return integer
+--- @param value string | number | nil
+--- @param max number
+--- @param offset number
+--- @return number
 function model.parse_size(value, max, offset)
     if type(value) == "number" then
         return value

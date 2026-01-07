@@ -1,13 +1,12 @@
---- @type fun(text:string, width:integer):string[]
+--- @type fun(text:string, width:number):string[]
 local text_wrap = require('cc.strings').wrap
 
-
-local text = {}
+local model = {}
 
 --- @param text string
---- @param width integer
+--- @param width number
 --- @return string
-function text.center(text, width)
+function model.center(text, width)
     local space = width - #text
     local res = text
     if space > 0 then
@@ -21,43 +20,47 @@ function text.center(text, width)
 end
 
 --- @param text string
---- @param width integer
+--- @param width number
 --- @return string
-function text.right(text, width)
+function model.right(text, width)
     local space = width - #text
-    if space <= 0 then return text end
+    if space <= 0 then
+        return text
+    end
     return string.rep(' ', space) .. text
 end
 
 --- @param text string
---- @param width integer
+--- @param width number
 --- @return string
-function text.left(text, width)
+function model.left(text, width)
     local space = width - #text
-    if space <= 0 then return text end
+    if space <= 0 then
+        return text
+    end
     return text .. string.rep(' ', space)
 end
 
 --- @param source string
---- @param width integer
+--- @param width number
 --- @return string[]
-function text.wrap(source, width)
+function model.wrap(source, width)
     return text_wrap(source, width)
 end
 
 --- @param source string
 --- @param value string
---- @param pos integer
+--- @param pos number
 --- @return string
-function text.insert(source, value, pos)
+function model.insert(source, value, pos)
     source = source:sub(1, pos - 2) .. value .. source:sub(pos - 1)
     return source
 end
 
 --- @param source string
---- @param pos integer
+--- @param pos number
 --- @return string
-function text.removeAt(source, pos)
+function model.removeAt(source, pos)
     source = source:sub(1, pos - 1) .. source:sub(pos + 1)
     return source
 end
@@ -65,7 +68,7 @@ end
 --- @param source string
 --- @param limiter string
 --- @return table
-function text.split(source, limiter)
+function model.split(source, limiter)
     local res = {}
     local buf = ""
     for i = 1, #source do
@@ -84,4 +87,4 @@ function text.split(source, limiter)
     return res
 end
 
-return text
+return model

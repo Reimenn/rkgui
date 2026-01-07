@@ -59,7 +59,7 @@ end
 
 --- @param path string
 function Theme:set(path, value)
-    local path = text.split(path, ".")
+    path = text.split(path, ".")
     local name = path[#path]
     table.remove(path, #path)
     local spaces = { self.map }

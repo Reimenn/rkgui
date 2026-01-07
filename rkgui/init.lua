@@ -1,28 +1,27 @@
-local utils             = require 'rkgui.utils'
-local components        = require 'rkgui.components'
-local text_tools        = require 'rkgui.text'
-local gui               = {}
+local utils = require 'rkgui.utils'
+local components = require 'rkgui.components'
+local text_tools = require 'rkgui.text'
+local gui = {}
 
 --- @type Theme
-gui.theme               = require 'rkgui.theme.default' ()
+gui.theme = require 'rkgui.theme.default'()
 --- @type Rect
-gui.last_rect           = nil
+gui.last_rect = nil
 
 --- @type Stack
-gui._layouts            = utils.Stack.new()
---- @type {x:integer,y:integer}
-gui._hover              = nil
---- @type {name:string,args:{[integer]:any}}
-gui._last_event         = {}
---- @type {[integer]:{msg:string,level:integer}}
-gui._debug_buffer       = {}
+gui._layouts = utils.Stack.new()
+--- @type {x:number,y:number}
+gui._hover = nil
+--- @type {name:string,args:any[]}
+gui._last_event = {}
+--- @type {msg:string,level:number}[]
+gui._debug_buffer = {}
 --- @type {name:string,keys:string[],action:fun()}[]
 gui._keyboard_shortcuts = {}
---- @type integer[]
-gui._hoding_keys        = {}
+--- @type number[]
+gui._hoding_keys = {}
 --- @type boolean
-gui._end_loop           = false
-
+gui._end_loop = false
 
 --- Check if mouse hover on rect
 --- @param rect Rect
@@ -36,20 +35,26 @@ end
 --- @return boolean
 function gui.check_click(rect)
     return (gui._last_event.name == 'mouse_up' and rect:point_in(gui._last_event.args[2], gui._last_event.args[3]))
-        or (gui._last_event.name == 'monitor_touch' and rect:point_in(gui._last_event.args[2], gui._last_event.args[3]))
+            or (gui._last_event.name == 'monitor_touch' and rect:point_in(gui._last_event.args[2], gui._last_event.args[3]))
 end
 
 --- @param text string
 --- @return boolean
-function gui.button(text) return components.button(gui, text, false) end
+function gui.button(text)
+    return components.button(gui, text, false)
+end
 
 --- @param text string
 --- @return boolean
-function gui.button_big(text) return components.button(gui, text, true) end
+function gui.button_big(text)
+    return components.button(gui, text, true)
+end
 
 --- @param text string
 --- @param align nil | 'l' | 'r' | 'c'
-function gui.label(text, align) components.label(gui, text, align) end
+function gui.label(text, align)
+    components.label(gui, text, align)
+end
 
 --- @param text string
 function gui.multiline_label(text)
@@ -63,16 +68,22 @@ end
 --- @param text string
 --- @param checked boolean
 --- @return boolean
-function gui.checkbox(text, checked) return components.checkbox(gui, text, checked) end
+function gui.checkbox(text, checked)
+    return components.checkbox(gui, text, checked)
+end
 
 --- @param text string
 --- @param checked boolean
 --- @return boolean
-function gui.toggle(text, checked) return components.toggle(gui, text, checked) end
+function gui.toggle(text, checked)
+    return components.toggle(gui, text, checked)
+end
 
 --- @param percent number [0,1]
 --- @param show_percent boolean
-function gui.progress_bar(percent, show_percent) components.progress_bar(gui, percent, show_percent) end
+function gui.progress_bar(percent, show_percent)
+    components.progress_bar(gui, percent, show_percent)
+end
 
 --- @param value number
 --- @param min number
@@ -84,22 +95,26 @@ function gui.slider(value, min, max, integer, show_number)
     return components.slider(gui, value, min, max, integer, show_number)
 end
 
---- @param selected integer
---- @param tabs {[integer]:string}
+--- @param selected number
+--- @param tabs string[]
 --- @param full boolean|nil
---- @return integer
-function gui.tabs(selected, tabs, full) return components.tabs(gui, selected, tabs, full) end
+--- @return number
+function gui.tabs(selected, tabs, full)
+    return components.tabs(gui, selected, tabs, full)
+end
 
-function gui.space() gui.malloc_rect(1, 1) end
+function gui.space()
+    gui.malloc_rect(1, 1)
+end
 
---- @param width integer | string
----@param height integer | string
+--- @param width number | string
+---@param height number | string
 ---@param dir 'lr'|'rl'|'tb'|'bt'
----@param view fun()
+---@param view fun():(boolean|nil)
 local function draw_in_layout(width, height, dir, view)
     gui._layouts:push(utils.Layout.new(
-        gui.malloc_rect(width, height),
-        dir
+            gui.malloc_rect(width, height),
+            dir
     ))
     view()
     gui._layouts:pop()
@@ -109,30 +124,38 @@ end
 --- you can use numbers 1, 2, 3... to indicate the specific height,
 --- or use a string such as "50%" to indicate the percentage height,
 --- or use "+" to fill the remaining height.
---- @param height integer | string
---- @param view fun() Draw the UI in the function
-function gui.row(height, view) draw_in_layout('+', height, 'lr', view) end
+--- @param height number | string
+--- @param view fun():(boolean|nil) Draw the UI in the function
+function gui.row(height, view)
+    draw_in_layout('+', height, 'lr', view)
+end
 
 --- Like `row()` but reverse
---- @param height integer | string
---- @param view fun() Draw the UI in the function
-function gui.reverse_row(height, view) draw_in_layout('+', height, 'rl', view) end
+--- @param height number | string
+--- @param view fun():(boolean|nil) Draw the UI in the function
+function gui.reverse_row(height, view)
+    draw_in_layout('+', height, 'rl', view)
+end
 
 --- Use `width` to specify the width of this column,
 --- you can use numbers 1, 2, 3... to indicate the specific width,
 --- or use a string such as "50%" to indicate a percentage width,
 --- or use "+" to fill the remaining width.
---- @param width integer | string
---- @param view fun() Draw the UI in the function
-function gui.col(width, view) draw_in_layout(width, '+', 'tb', view) end
+--- @param width number | string
+--- @param view fun():(boolean|nil) Draw the UI in the function
+function gui.col(width, view)
+    draw_in_layout(width, '+', 'tb', view)
+end
 
 --- Like `col()` but reverse
---- @param width integer | string
---- @param view fun() Draw the UI in the function
-function gui.reverse_col(width, view) draw_in_layout(width, '+', 'bt', view) end
+--- @param width number | string
+--- @param view fun():(boolean|nil) Draw the UI in the function
+function gui.reverse_col(width, view)
+    draw_in_layout(width, '+', 'bt', view)
+end
 
---- @param width integer|string|nil
---- @param height integer|string|nil
+--- @param width number|string|nil
+--- @param height number|string|nil
 --- @return Rect
 function gui.malloc_rect(width, height)
     --- @type Layout
@@ -160,7 +183,9 @@ function gui.malloc_rect(width, height)
         gui.last_rect.y = layout.rect.y
         gui.last_rect.w = w
         if layout.rect.h < h then
-            local tb = gui._layouts:peek_last(function(ele) return ele.dir == 'tb' end)
+            local tb = gui._layouts:peek_last(function(ele)
+                return ele.dir == 'tb'
+            end)
             local add = h - gui.last_rect.h - 1
             tb.offset = tb.offset + add
             layout.rect.h = layout.rect.h + add
@@ -172,7 +197,9 @@ function gui.malloc_rect(width, height)
         gui.last_rect.y = layout.rect.y
         gui.last_rect.w = w
         if layout.rect.h < h then
-            local tb = gui._layouts:peek_last(function(ele) return ele.dir == 'tb' end)
+            local tb = gui._layouts:peek_last(function(ele)
+                return ele.dir == 'tb'
+            end)
             local add = h - gui.last_rect.h - 1
             tb.offset = tb.offset + add
             layout.rect.h = layout.rect.h + add
@@ -188,7 +215,9 @@ end
 --- @param msg any
 --- @param level? 'info'|'warnning'|'error'
 function gui.debug(msg, level)
-    if level == nil then level = 'info' end
+    if level == nil then
+        level = 'info'
+    end
     table.insert(gui._debug_buffer, {
         msg = msg,
         level = level
@@ -221,7 +250,9 @@ function gui.remove_shortcut(name)
 end
 
 local function draw_debug()
-    if #(gui._debug_buffer) <= 0 then return end
+    if #(gui._debug_buffer) <= 0 then
+        return
+    end
 
     local ox, oy = term.getCursorPos()
     local _, h = term.getSize()
@@ -260,7 +291,7 @@ local function check_keyboard_shortcuts()
             end
         end
         gui._keyboard_shortcuts[i].action()
-        ::continue::
+        :: continue ::
     end
 end
 
@@ -311,7 +342,7 @@ local function pullEvent()
 end
 
 --- Start GUI with view function
---- @param view function
+--- @param view fun():(boolean|nil)
 function gui.start(view)
     gui._end_loop = false
     gui._last_event = {}
