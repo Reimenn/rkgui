@@ -9,7 +9,9 @@ function input.get(gui, value, title)
     --- @module 'rkgui'
     gui = gui
     local source = value
-    if value == nil then value = '' end
+    if value == nil then
+        value = ''
+    end
 
     local term_w, term_h = term.getSize()
     local left = math.max(2, math.floor(term_w * 0.2))
@@ -45,38 +47,40 @@ function input.get(gui, value, title)
         left = math.max(2, math.floor(term_w * 0.2))
         top = math.floor(term_h / 2)
         text_w = term_w - left - left + 2
-
+        
         -- input event
-        local event = gui._last_event.name
-        local param = gui._last_event.args[1]
-        if event == 'key' then
-            if param == keys.left then
-                cursor_move_left()
-            elseif param == keys.right then
-                cursor_next()
-            elseif param == keys.home then
-                cursor = 1
-                scroll = 1
-            elseif param == keys['end'] then
-                cursor = #value + 1
-                if cursor > text_w then
-                    scroll = cursor - text_w + 1
+        if gui._last_event.name ~= nil then
+            local event = gui._last_event.name
+            local param = gui._last_event.args[1]
+            if event == 'key' then
+                if param == keys.left then
+                    cursor_move_left()
+                elseif param == keys.right then
+                    cursor_next()
+                elseif param == keys.home then
+                    cursor = 1
+                    scroll = 1
+                elseif param == keys['end'] then
+                    cursor = #value + 1
+                    if cursor > text_w then
+                        scroll = cursor - text_w + 1
+                    end
+                elseif param == keys.backspace and cursor > 1 then
+                    cursor_move_left()
+                    value = text_tool.removeAt(value, cursor)
+                elseif param == keys.delete then
+                    value = text_tool.removeAt(value, cursor)
+                elseif param == keys.enter then
+                    ok = true
+                    return true
+                elseif param == keys.leftAlt or param == keys.rightAlt then
+                    ok = false
+                    return true
                 end
-            elseif param == keys.backspace and cursor > 1 then
-                cursor_move_left()
-                value = text_tool.removeAt(value, cursor)
-            elseif param == keys.delete then
-                value = text_tool.removeAt(value, cursor)
-            elseif param == keys.enter then
-                ok = true
-                return true
-            elseif param == keys.leftAlt or param == keys.rightAlt then
-                ok = false
-                return true
+            elseif event == 'char' then
+                value = text_tool.insert(value, param, cursor + 1)
+                cursor_next()
             end
-        elseif event == 'char' then
-            value = text_tool.insert(value, param, cursor + 1)
-            cursor_next()
         end
 
         local prefix = string.rep(' ', left - 1)
