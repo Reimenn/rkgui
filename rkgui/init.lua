@@ -103,8 +103,19 @@ function gui.tabs(selected, tabs, full)
     return components.tabs(gui, selected, tabs, full)
 end
 
-function gui.space()
-    gui.malloc_rect(1, 1)
+--- @param space number | nil
+function gui.space(space)
+    if space == nil then
+        space = 1
+    end
+
+    -- @type Layout
+    local l = gui._layouts:peek()
+    if l.dir == 'lr' or l.dir == 'rl' then
+        gui.malloc_rect(space, 1)
+    else
+        gui.malloc_rect(1, space)
+    end
 end
 
 --- @param width number | string
