@@ -11,17 +11,16 @@ function module.button(gui, text, big)
 
     local rect
     if big then
-        rect = gui.malloc_rect(#text + 2, 3)
+        rect = gui:malloc_rect(#text + 2, 3)
     else
-        rect = gui.malloc_rect(#text + 2, 1)
+        rect = gui:malloc_rect(#text + 2, 1)
     end
 
-    local click = gui.check_click(rect)
+    local click = gui:check_click(rect)
 
     if click then
-        gui.theme:apply('button.click')
         paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
-    elseif gui.check_mouse_holding(rect) then
+    elseif gui:check_mouse_holding(rect) then
         gui.theme:apply('button.holding')
         paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
     else
@@ -44,7 +43,7 @@ end
 function module.label(gui, text, align)
     --- @module 'rkgui'
     gui = gui
-    local rect = gui.malloc_rect(#text, 1)
+    local rect = gui:malloc_rect(#text, 1)
     if align == 'r' then
         text = text_tools.right(text, rect.w)
     elseif align == 'c' then
@@ -61,11 +60,11 @@ end
 function module.checkbox(gui, text, checked)
     --- @module 'rkgui'
     gui = gui
-    local rect = gui.malloc_rect(#text + 2, 1)
+    local rect = gui:malloc_rect(#text + 2, 1)
     --- @type Rect
     local click_rect = utils.shallow_copy(rect)
     click_rect.w = #text + 2
-    if gui.check_click(click_rect) then
+    if gui:check_click(click_rect) then
         checked = not checked
     end
 
@@ -85,15 +84,15 @@ end
 function module.toggle(gui, text, checked)
     --- @module 'rkgui'
     gui = gui
-    local rect = gui.malloc_rect(#text + 4, 1)
+    local rect = gui:malloc_rect(#text + 4, 1)
 
-    local click = gui.check_click(rect)
+    local click = gui:check_click(rect)
     if click then
         checked = not checked
     end
 
     term.setCursorPos(rect.x, rect.y)
-    if gui.check_mouse_holding(rect) then
+    if gui:check_mouse_holding(rect) then
         gui.theme:draw_char('toggle.track.on')
         gui.theme:draw_char('toggle.thumb')
         gui.theme:draw_char('toggle.track.off')
@@ -124,7 +123,7 @@ local progress_bar_stage_table = {
 function module.progress_bar(gui, percent, show_percent)
     --- @module 'rkgui'
     gui = gui
-    local rect = gui.malloc_rect(10, 1)
+    local rect = gui:malloc_rect(10, 1)
 
     -- percent title
     if show_percent then
@@ -154,7 +153,9 @@ function module.progress_bar(gui, percent, show_percent)
             local stage = math.floor(remain * 6) + 1
             term.setBackgroundColor(gui.theme:get('progress.bar.background'))
             term.setTextColor(gui.theme:get('progress.bar.color'))
-            if stage == 6 then term.setBackgroundColor(gui.theme:get('progress.bar.color')) end
+            if stage == 6 then
+                term.setBackgroundColor(gui.theme:get('progress.bar.color'))
+            end
             term.write(progress_bar_stage_table[stage])
         end
     end
@@ -169,7 +170,7 @@ end
 function module.slider(gui, value, min, max, integer, show_number)
     --- @module 'rkgui'
     gui = gui
-    local rect = gui.malloc_rect(20, 1)
+    local rect = gui:malloc_rect(20, 1)
     term.setCursorPos(rect.x, rect.y)
 
     -- number prefix
@@ -206,14 +207,14 @@ function module.slider(gui, value, min, max, integer, show_number)
     slider_rect.w = rect.w - 2
     slider_rect.h = rect.h
 
-    if gui.check_mouse_holding(slider_rect) then
+    if gui:check_mouse_holding(slider_rect) then
         percent = (gui._hover.x - slider_rect.x) / (slider_rect.w - 1)
         value = (max - min) * percent + min
-    elseif gui.check_click(slider_rect) then
+    elseif gui:check_click(slider_rect) then
         percent = (gui._last_event.args[2] - slider_rect.x) / (slider_rect.w - 1)
         value = (max - min) * percent + min
     elseif gui._last_event.name == 'mouse_scroll' and
-        slider_rect:point_in(gui._last_event.args[2], gui._last_event.args[3])
+            slider_rect:point_in(gui._last_event.args[2], gui._last_event.args[3])
     then
         value = value - gui._last_event.args[1]
     end
@@ -232,10 +233,10 @@ function module.slider(gui, value, min, max, integer, show_number)
     return value
 end
 
---- @param selected integer
---- @param tabs {[integer]:string}
+--- @param selected number
+--- @param tabs string[]
 --- @param full boolean|nil
---- @return integer
+--- @return number
 function module.tabs(gui, selected, tabs, full)
     --- @module 'rkgui'
     gui = gui
@@ -245,7 +246,7 @@ function module.tabs(gui, selected, tabs, full)
     --- @type Rect
     local rect
 
-    -- width cauculate & malloc rect
+    -- width calculate & malloc rect
     for i = 1, #tabs do
         local w = #(tabs[i]) + 2
         need_width = need_width + w
@@ -253,7 +254,7 @@ function module.tabs(gui, selected, tabs, full)
     end
 
     if full then
-        rect = gui.malloc_rect('+', 1)
+        rect = gui:malloc_rect('+', 1)
         while need_width < rect.w do
             local min_v = rect.w
             local min_i = 1
@@ -267,7 +268,7 @@ function module.tabs(gui, selected, tabs, full)
             widths[min_i] = widths[min_i] + 1
         end
     else
-        rect = gui.malloc_rect(need_width, 1)
+        rect = gui:malloc_rect(need_width, 1)
     end
 
     -- input check
@@ -275,7 +276,7 @@ function module.tabs(gui, selected, tabs, full)
     click_rect.x, click_rect.y = rect.x, rect.y
     for i = 1, #tabs do
         click_rect.w, click_rect.h = widths[i], 1
-        if gui.check_click(click_rect) then
+        if gui:check_click(click_rect) then
             selected = i
         end
         click_rect.x = click_rect.x + click_rect.w

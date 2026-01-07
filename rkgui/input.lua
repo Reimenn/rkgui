@@ -114,7 +114,7 @@ end
 function InputData:draw(gui)
     --- @module 'rkgui'
     gui = gui
-    local rect = gui.malloc_rect(self.width, 2)
+    local rect = gui:malloc_rect(self.width, 2)
 
     -- text
     term.setCursorPos(rect.x, rect.y)
@@ -149,9 +149,9 @@ end
 --- @param value string
 --- @param title string
 --- @return string
-function model.get(gui, value, title)
+function model.get(value, title)
     --- @module 'rkgui'
-    gui = gui
+    gui = require('rkgui').new()
     local source = value
 
     local term_w, term_h = term.getSize()
@@ -160,7 +160,7 @@ function model.get(gui, value, title)
     local data = InputData.new(value, term_w - left - left)
 
     local click_ok = false
-    gui.start(function()
+    gui:start(function()
         -- update term size value
         term_w, term_h = term.getSize()
         left = math.max(2, math.floor(term_w * 0.2))
@@ -179,30 +179,30 @@ function model.get(gui, value, title)
 
         local prefix = string.rep(' ', left)
         -- draw title
-        gui.space((term_h / 2) - 4)
+        gui:space(math.ceil((term_h / 2) - 4))
         if title then
-            gui.label(prefix .. title)
+            gui:label(prefix .. title)
         else
-            gui.label(prefix .. 'Input:')
+            gui:label(prefix .. 'Input:')
         end
-        gui.space()
+        gui:space()
 
         -- draw input
-        gui.row(2, function()
-            gui.space(left - 1)
+        gui:row(2, function()
+            gui:space(left - 1)
             data:draw(gui)
         end)
 
         -- draw buttons
         local rt = false
-        gui.row(1, function()
-            gui.label(string.rep(' ', left - 1 + data.width - 2 - 17))
-            if gui.button("Cancel") then
+        gui:row(1, function()
+            gui:label(string.rep(' ', left - 1 + data.width - 2 - 17))
+            if gui:button("Cancel") then
                 click_ok = false
                 rt = true
             end
-            gui.space()
-            if gui.button("Submit") then
+            gui:space()
+            if gui:button("Submit") then
                 click_ok = true
                 rt = true
             end
