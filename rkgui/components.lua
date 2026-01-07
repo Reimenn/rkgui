@@ -31,11 +31,7 @@ function module.button(gui, text, big)
 
     if big then
         term.setCursorPos(rect.x, rect.y + 1)
-        term.write('|' .. text_tools.center(text, rect.w - 2) .. '|')
-        term.setCursorPos(rect.x, rect.y)
-        term.write('+' .. string.rep(' ', rect.w - 2) .. '+')
-        term.setCursorPos(rect.x, rect.y + 2)
-        term.write('+' .. string.rep(' ', rect.w - 2) .. '+')
+        term.write(text_tools.center(text, rect.w))
     else
         term.setCursorPos(rect.x, rect.y)
         term.write('[' .. text_tools.center(text, rect.w - 2) .. ']')
