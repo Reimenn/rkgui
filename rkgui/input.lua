@@ -149,9 +149,10 @@ end
 --- @param value string
 --- @param title string
 --- @return string
-function model.get(value, title)
+function model.get_string(value, title)
     --- @module 'rkgui'
     gui = require('rkgui').new()
+    gui:remove_shortcut('exit')
     local source = value
 
     local term_w, term_h = term.getSize()
@@ -220,6 +221,151 @@ function model.get(value, title)
     else
         return source
     end
+end
+
+function model.get_number(value, title, allow_decimal)
+    gui = require('rkgui').new()
+    gui:remove_shortcut('exit')
+    gui.theme:set('button.left_char', ' ')
+    gui.theme:set('button.right_char', ' ')
+
+    local KEYBOARD_WIDTH = 23
+    local VALUE_WIDTH = 16
+    local GAP_WIDTH = 3
+
+    local text = tostring(value)
+    --- @param char string
+    local pressed = function(char)
+        if char:match('^%d$') then
+            if text == '0' then
+                if char ~= '0' then
+                    text = char
+                end
+            elseif text == '-0' then
+                if char ~= '0' then
+                    text = '-' .. char
+                end
+            else
+                text = text .. char
+            end
+        elseif char == '.' then
+            if not text:find('.', 1, true) then
+                text = text .. '.'
+            end
+        elseif char == '-' then
+            if text:sub(1, 1) == '-' then
+                text = text:sub(2)
+            else
+                text = '-' .. text
+            end
+        elseif char == 'C' then
+            text = '0'
+        elseif char == 'R' then
+            text = tostring(value)
+        elseif char == string.char(17) then
+            text = text:sub(1, #text - 1)
+            if #text == 0 then
+                text = '0'
+            elseif text == '-' then
+                text = '0'
+            end
+        end
+    end
+
+    local draw_button = function(char)
+        if gui:button_big(" " .. char .. " ") then
+            pressed(char)
+        end
+    end
+
+    gui:start(function()
+        local to_end = false
+        gui:row('+', function()
+            local area_h = gui.last_rect.h
+            local area_w = gui.last_rect.w
+
+            if area_w > KEYBOARD_WIDTH + VALUE_WIDTH + GAP_WIDTH then
+                local left = math.floor((area_w - KEYBOARD_WIDTH - VALUE_WIDTH - GAP_WIDTH) / 2)
+                gui:space(left)
+            end
+
+            gui:col(VALUE_WIDTH, function()
+                gui:space(math.floor((area_h - 3) / 2))
+                gui:label(title)
+                gui:space()
+                gui:label(text, 'r')
+                gui:label(string.rep(string.char(131), VALUE_WIDTH))
+            end)
+            gui:space(GAP_WIDTH)
+            gui:col(KEYBOARD_WIDTH, function()
+                local top = math.floor((area_h - 15) / 2)
+                if top > 0 then
+                    gui:space(top)
+                end
+
+                gui:row(3, function()
+                    draw_button("1")
+                    gui:space()
+                    draw_button("2")
+                    gui:space()
+                    draw_button("3")
+                    gui:space()
+                    draw_button(string.char(17))
+                end)
+                gui:space()
+                gui:row(3, function()
+                    draw_button("4")
+                    gui:space()
+                    draw_button("5")
+                    gui:space()
+                    draw_button("6")
+                    gui:space()
+                    draw_button('-')
+                end)
+                gui:space()
+                gui:row(3, function()
+                    draw_button("7")
+                    gui:space()
+                    draw_button("8")
+                    gui:space()
+                    draw_button("9")
+                    gui:space()
+                    gui:col(5, function()
+                        local bg = gui.theme:get('button.background')
+                        gui.theme:set('button.background', '#keyboard.danger_color')
+                        if gui:button(' C ') then
+                            pressed('C')
+                        end
+                        gui:space()
+                        if gui:button(' R ') then
+                            pressed('R')
+                        end
+                        gui.theme:set('button.background', bg)
+                    end)
+
+                end)
+                gui:space()
+                gui:row(3, function()
+                    draw_button('.')
+                    gui:space()
+                    if gui:button_big('    0    ') then
+                        pressed('0')
+                    end
+                    gui:space()
+                    local bg = gui.theme:get('button.background')
+                    gui.theme:set('button.background', '#keyboard.primary_color')
+                    if gui:button_big(' = ') then
+                        value = tonumber(text)
+                        to_end = true
+                    end
+                    gui.theme:set('button.background', bg)
+                end)
+            end)
+        end)
+        return to_end
+    end)
+
+    return value
 end
 
 return model

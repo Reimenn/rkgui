@@ -33,7 +33,7 @@ function module.button(gui, text, big)
         term.write(text_tools.center(text, rect.w))
     else
         term.setCursorPos(rect.x, rect.y)
-        term.write('[' .. text_tools.center(text, rect.w - 2) .. ']')
+        term.write(gui.theme:get('button.left_char') .. text_tools.center(text, rect.w - 2) .. gui.theme:get('button.right_char'))
     end
     return click
 end

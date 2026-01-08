@@ -14,7 +14,9 @@ return function()
             click = {
                 background = colors.black,
                 color = colors.white,
-            }
+            },
+            left_char = '[',
+            right_char = ']'
         },
         label = {
         },
@@ -74,6 +76,10 @@ return function()
                 background = colors.lightGray,
                 color = colors.black,
             },
+        },
+        keyboard = {
+            danger_color = colors.red,
+            primary_color = colors.green
         }
     }
     return t
