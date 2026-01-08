@@ -230,7 +230,7 @@ function GUI:malloc_rect(width, height)
 end
 
 --- @param msg any
---- @param level? 'info'|'warnning'|'error'
+--- @param level? 'info'|'warning'|'error'
 function GUI:debug(msg, level)
     if level == nil then
         level = 'info'
@@ -273,7 +273,7 @@ function GUI:_draw_debug()
 
     local ox, oy = term.getCursorPos()
     local _, h = term.getSize()
-    local color = { info = colors.gray, warnning = colors.orange, error = colors.red }
+    local color = { info = colors.gray, warning = colors.orange, error = colors.red }
     term.setCursorPos(1, h)
     term.setTextColour(colors.white)
     for i = #self._debug_buffer, 1, -1 do

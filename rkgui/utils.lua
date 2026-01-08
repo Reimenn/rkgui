@@ -141,11 +141,11 @@ end
 --- @return number
 function model.parse_size(value, max, offset)
     if type(value) == "number" then
-        return value
+        return math.floor(value)
     end
     if type(value) == 'string' then
         if value == '+' then
-            return max - offset
+            return math.floor(max - offset)
         end
         local last = value:sub(#value, #value)
         if last == '%' then
@@ -161,7 +161,7 @@ function model.parse_size(value, max, offset)
             end
         end
     end
-    return max
+    return math.floor(max)
 end
 
 return model
