@@ -15,8 +15,10 @@ local text_tools = require 'rkgui.text'
 local GUI = {}
 GUI.__index = GUI
 
+--- @return GUI
 function GUI.new()
-    return setmetatable({
+    --- @type GUI
+    local inst = setmetatable({
         theme = require 'rkgui.theme.default'(),
         last_rect = nil,
         _layouts = utils.Stack.new(),
@@ -27,6 +29,10 @@ function GUI.new()
         _holding_keys = {},
         _end_loop = false
     }, GUI)
+    inst:add_shortcut('exit', { keys.leftCtrl, keys.c }, function()
+        inst:stop()
+    end)
+    return inst
 end
 
 --- Check if mouse hover on rect
@@ -379,8 +385,10 @@ function GUI:start(view)
 
         self._layouts:pop()
     end
-    local _, h = term.getSize()
-    term.setCursorPos(1, h)
+
+    term.setBackgroundColor(colors.black)
+    term.clear()
+    term.setCursorPos(1, 1)
 end
 
 --- Stop GUI

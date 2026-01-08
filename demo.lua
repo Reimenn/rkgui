@@ -162,9 +162,6 @@ gui:add_shortcut('change check2', { keys.leftCtrl, keys.leftAlt, keys.w }, funct
     c_shortcut_counter = c_shortcut_counter + 1
 end)
 
-gui:add_shortcut('exit check', { keys.leftCtrl, keys.c }, function()
-    gui:stop()
-end)
 
 gui:start(function()
     local tabs = {}
