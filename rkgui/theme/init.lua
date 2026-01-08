@@ -25,13 +25,20 @@ function Theme:get(key)
         table.insert(spaces, n)
     end
 
+    local result
     for i = #spaces, 1, -1 do
         local v = spaces[i][name]
         if v ~= nil then
-            return v
+            result = v
+            break
         end
     end
-    return nil
+
+    if type(result) == "string" and result:sub(1, 1) == "#" then
+        result = self:get(result:sub(2))
+    end
+
+    return result
 end
 
 --- @param path string
