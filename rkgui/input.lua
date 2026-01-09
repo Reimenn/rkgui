@@ -230,7 +230,7 @@ function model.get_number(value, title, allow_decimal)
     gui.theme:set('button.right_char', ' ')
 
     local KEYBOARD_WIDTH = 23
-    local VALUE_WIDTH = 16
+    local VALUE_WIDTH = 17
     local GAP_WIDTH = 3
 
     local text = tostring(value)
@@ -248,7 +248,7 @@ function model.get_number(value, title, allow_decimal)
             else
                 text = text .. char
             end
-        elseif char == '.' then
+        elseif char == '.' and allow_decimal then
             if not text:find('.', 1, true) then
                 text = text .. '.'
             end
@@ -290,11 +290,25 @@ function model.get_number(value, title, allow_decimal)
             end
 
             gui:col(VALUE_WIDTH, function()
-                gui:space(math.floor((area_h - 3) / 2))
+                gui:space(math.floor((area_h - 7) / 2))
                 gui:label(title)
                 gui:space()
                 gui:label(text, 'r')
                 gui:label(string.rep(string.char(131), VALUE_WIDTH))
+                gui:space()
+                gui:reverse_row('3', function()
+                    local bg = gui.theme:get('button.background')
+                    if gui:button_big('Submit') then
+                        value = tonumber(text)
+                        to_end = true
+                    end
+                    gui:space()
+                    gui.theme:set('button.background', '#background')
+                    if gui:button_big('Cancel') then
+                        to_end = true
+                    end
+                    gui.theme:set('button.background', bg)
+                end)
             end)
             gui:space(GAP_WIDTH)
             gui:col(KEYBOARD_WIDTH, function()
@@ -330,34 +344,26 @@ function model.get_number(value, title, allow_decimal)
                     gui:space()
                     draw_button("9")
                     gui:space()
-                    gui:col(5, function()
-                        local bg = gui.theme:get('button.background')
-                        gui.theme:set('button.background', '#keyboard.danger_color')
-                        if gui:button(' C ') then
-                            pressed('C')
-                        end
-                        gui:space()
-                        if gui:button(' R ') then
-                            pressed('R')
-                        end
-                        gui.theme:set('button.background', bg)
-                    end)
-
+                    local bg = gui.theme:get('button.background')
+                    gui.theme:set('button.background', '#keyboard.danger_color')
+                    draw_button('C')
+                    gui.theme:set('button.background', bg)
                 end)
                 gui:space()
                 gui:row(3, function()
-                    draw_button('.')
-                    gui:space()
-                    if gui:button_big('    0    ') then
+                    local zero_text = '       0       '
+                    if allow_decimal then
+                        draw_button('.')
+                        gui:space()
+                        zero_text = '    0    '
+                    end
+                    if gui:button_big(zero_text) then
                         pressed('0')
                     end
                     gui:space()
                     local bg = gui.theme:get('button.background')
-                    gui.theme:set('button.background', '#keyboard.primary_color')
-                    if gui:button_big(' = ') then
-                        value = tonumber(text)
-                        to_end = true
-                    end
+                    gui.theme:set('button.background', '#keyboard.danger_color')
+                    draw_button('R')
                     gui.theme:set('button.background', bg)
                 end)
             end)
