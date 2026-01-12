@@ -5,6 +5,9 @@ return function()
     t.map = {
         background = colors.black,
         color = colors.white,
+        danger_color = colors.red,
+        submit_color = colors.green,
+        ghost_color = colors.gray,
         button = {
             background = colors.gray,
             holding = {
@@ -77,10 +80,6 @@ return function()
                 color = colors.black,
             },
         },
-        keyboard = {
-            danger_color = colors.red,
-            primary_color = colors.green
-        }
     }
     return t
 end

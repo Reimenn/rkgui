@@ -12,6 +12,7 @@ function module.button(gui, text, height)
 
     local click = gui:check_click(rect)
     if click then
+        gui.theme:apply('button.click')
         paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
     elseif gui:check_mouse_holding(rect) then
         gui.theme:apply('button.holding')

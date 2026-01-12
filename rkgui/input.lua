@@ -337,17 +337,22 @@ function model.get_number(value, title, allow_decimal)
                 gui:label(string.rep(string.char(131), VALUE_WIDTH))
                 gui:space()
                 gui:reverse_row('3', function()
-                    local bg = gui.theme:get('button.background')
-                    if gui:button('Submit', 3) then
-                        value = tonumber(text)
-                        to_end = true
-                    end
+                    gui.theme:temp({
+                        ['button.background'] = '#submit_color',
+                    }, function()
+                        if gui:button('Submit', 3) then
+                            value = tonumber(text)
+                            to_end = true
+                        end
+                    end)
                     gui:space()
-                    gui.theme:set('button.background', '#background')
-                    if gui:button('Cancel', 3) then
-                        to_end = true
-                    end
-                    gui.theme:set('button.background', bg)
+                    gui.theme:temp({
+                        ['button.background'] = '#background'
+                    }, function()
+                        if gui:button('Cancel', 3) then
+                            to_end = true
+                        end
+                    end)
                 end)
             end)
             gui:space(GAP_WIDTH)
@@ -385,10 +390,11 @@ function model.get_number(value, title, allow_decimal)
                     gui:space()
                     draw_button("9")
                     gui:space()
-                    local bg = gui.theme:get('button.background')
-                    gui.theme:set('button.background', '#keyboard.danger_color')
-                    draw_button('C')
-                    gui.theme:set('button.background', bg)
+                    gui.theme:temp({
+                        ['button.background'] = '#danger_color'
+                    }, function()
+                        draw_button('C')
+                    end)
                 end)
                 gui:space()
                 gui:row(3, function()
@@ -402,10 +408,11 @@ function model.get_number(value, title, allow_decimal)
                         pressed('0')
                     end
                     gui:space()
-                    local bg = gui.theme:get('button.background')
-                    gui.theme:set('button.background', '#keyboard.danger_color')
-                    draw_button('R')
-                    gui.theme:set('button.background', bg)
+                    gui.theme:temp({
+                        ['button.background'] = '#danger_color'
+                    }, function()
+                        draw_button('R')
+                    end)
                 end)
             end)
         end)
