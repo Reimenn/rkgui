@@ -81,4 +81,18 @@ function Theme:set(path, value)
     spaces[#spaces][name] = value
 end
 
+--- @param properties table<string, any>
+--- @param func function()
+function Theme:temp(properties, func)
+    local reverse = {}
+    for k in pairs(properties) do
+        reverse[k] = self:get(k)
+        self:set(k, properties[k])
+    end
+    func()
+    for k in pairs(reverse) do
+        self:set(k, reverse[k])
+    end
+end
+
 return Theme
