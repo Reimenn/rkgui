@@ -299,7 +299,7 @@ function model.get_number(value, title, allow_decimal)
     end
 
     local draw_button = function(char)
-        if gui:button_big(" " .. char .. " ") then
+        if gui:button(" " .. char .. " ", 3) then
             pressed(char)
         end
     end
@@ -338,13 +338,13 @@ function model.get_number(value, title, allow_decimal)
                 gui:space()
                 gui:reverse_row('3', function()
                     local bg = gui.theme:get('button.background')
-                    if gui:button_big('Submit') then
+                    if gui:button('Submit', 3) then
                         value = tonumber(text)
                         to_end = true
                     end
                     gui:space()
                     gui.theme:set('button.background', '#background')
-                    if gui:button_big('Cancel') then
+                    if gui:button('Cancel', 3) then
                         to_end = true
                     end
                     gui.theme:set('button.background', bg)
@@ -398,7 +398,7 @@ function model.get_number(value, title, allow_decimal)
                         gui:space()
                         zero_text = '    0    '
                     end
-                    if gui:button_big(zero_text) then
+                    if gui:button(zero_text, 3) then
                         pressed('0')
                     end
                     gui:space()

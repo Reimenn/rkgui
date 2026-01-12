@@ -2,22 +2,15 @@ local text_tools = require 'rkgui.text'
 local utils = require 'rkgui.utils'
 local module = {}
 
+--- @param gui GUI
 --- @param text string
---- @param big boolean
+--- @param height number
 --- @return boolean
-function module.button(gui, text, big)
-    --- @module 'rkgui'
-    gui = gui
-
-    local rect
-    if big then
-        rect = gui:malloc_rect(#text + 2, 3)
-    else
-        rect = gui:malloc_rect(#text + 2, 1)
-    end
+function module.button(gui, text, height)
+    local decoration_char_length = #gui.theme:get('button.left_char') + #gui.theme:get('button.right_char')
+    local rect = gui:malloc_rect(#text + decoration_char_length, height)
 
     local click = gui:check_click(rect)
-
     if click then
         paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
     elseif gui:check_mouse_holding(rect) then
@@ -28,13 +21,11 @@ function module.button(gui, text, big)
         paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
     end
 
-    if big then
-        term.setCursorPos(rect.x, rect.y + 1)
-        term.write(text_tools.center(text, rect.w))
-    else
-        term.setCursorPos(rect.x, rect.y)
-        term.write(gui.theme:get('button.left_char') .. text_tools.center(text, rect.w - 2) .. gui.theme:get('button.right_char'))
-    end
+    local draw_text = text_tools.center(text, rect.w - decoration_char_length)
+    term.setCursorPos(rect.x, rect.y + math.floor(rect.h / 2))
+    term.write(gui.theme:get('button.left_char'))
+    term.write(draw_text)
+    term.write(gui.theme:get('button.right_char'))
     return click
 end
 

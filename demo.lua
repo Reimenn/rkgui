@@ -54,7 +54,7 @@ Switch tabs at the top of the screen to see more content!
                 c_counter = c_counter + 1
             end
             gui:space()
-            if gui:button_big(("A BIG button (%d)"):format(c_counter)) then
+            if gui:button(("A BIG button (%d)"):format(c_counter), 3) then
                 c_counter = c_counter + 1
             end
             gui:space()

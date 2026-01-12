@@ -51,15 +51,13 @@ function GUI:check_click(rect)
 end
 
 --- @param text string
+--- @param height number|nil
 --- @return boolean
-function GUI:button(text)
-    return components.button(self, text, false)
-end
-
---- @param text string
---- @return boolean
-function GUI:button_big(text)
-    return components.button(self, text, true)
+function GUI:button(text, height)
+    if height == nil then
+        height = 1
+    end
+    return components.button(self, text, height)
 end
 
 --- @param text string
