@@ -20,7 +20,7 @@ function InputData.new(default_text, width)
     end
     local inst = setmetatable({
         text = default_text,
-        cursor = 1,
+        cursor = #default_text + 1,
         scroll = 1,
         term_cursor = { x = 1, y = 1 }
     }, InputData)
