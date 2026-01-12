@@ -146,6 +146,32 @@ function InputData:draw_cursor()
     term.setCursorBlink(true)
 end
 
+--- @param gui GUI
+--- @return string | nil
+function check_gui_char_input(gui)
+    if gui._last_event.name ~= nil then
+        local type = gui._last_event.name
+        local value = gui._last_event.args[1]
+        if type == 'char' and #value > 0 then
+            return value
+        end
+    end
+    return nil
+end
+
+--- @param gui GUI
+--- @return number | nil
+function check_gui_key_pressed(gui)
+    if gui._last_event.name ~= nil then
+        local type = gui._last_event.name
+        local value = gui._last_event.args[1]
+        if type == 'key' and value >= 0 then
+            return value
+        end
+    end
+    return nil
+end
+
 --- @param value string
 --- @param title string
 --- @return string
@@ -280,15 +306,29 @@ function model.get_number(value, title, allow_decimal)
 
     gui:start(function()
         local to_end = false
+
+        -- keyboard input
+        local pressed_char = check_gui_char_input(gui)
+        if pressed_char then
+            pressed(pressed_char:upper())
+        end
+        local pressed_key = check_gui_key_pressed(gui)
+        if pressed_key == keys.enter then
+            to_end = true
+            value = tonumber(text)
+        elseif pressed_key == keys.backspace then
+            pressed(string.char(17))
+        end
+
         gui:row('+', function()
             local area_h = gui.last_rect.h
             local area_w = gui.last_rect.w
-
+            -- draw left space
             if area_w > KEYBOARD_WIDTH + VALUE_WIDTH + GAP_WIDTH then
                 local left = math.floor((area_w - KEYBOARD_WIDTH - VALUE_WIDTH - GAP_WIDTH) / 2)
                 gui:space(left)
             end
-
+            -- draw value col
             gui:col(VALUE_WIDTH, function()
                 gui:space(math.floor((area_h - 7) / 2))
                 gui:label(title)
@@ -311,6 +351,7 @@ function model.get_number(value, title, allow_decimal)
                 end)
             end)
             gui:space(GAP_WIDTH)
+            -- draw keyboards
             gui:col(KEYBOARD_WIDTH, function()
                 local top = math.floor((area_h - 15) / 2)
                 if top > 0 then
