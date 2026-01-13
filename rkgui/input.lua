@@ -132,6 +132,7 @@ function InputData:draw(gui)
 
     -- underline
     term.setCursorPos(rect.x + 1, rect.y + 1)
+    term.setTextColor(gui.theme:get('ghost_color'))
     term.write(string.rep(string.char(131), self.text_width))
 
     -- cursor
@@ -179,6 +180,8 @@ function model.get_string(value, title)
     --- @module 'rkgui'
     gui = require('rkgui').new()
     gui:remove_shortcut('exit')
+    gui.theme:set('button.left_char', ' ')
+    gui.theme:set('button.right_char', ' ')
     local source = value
 
     local term_w, term_h = term.getSize()
@@ -190,7 +193,7 @@ function model.get_string(value, title)
     gui:start(function()
         -- update term size value
         term_w, term_h = term.getSize()
-        left = math.max(2, math.floor(term_w * 0.2))
+        left = math.max(2, math.floor(term_w * 0.1))
         top = math.floor(term_h / 2)
         data:set_width(term_w - left - left)
 
@@ -206,7 +209,7 @@ function model.get_string(value, title)
 
         local prefix = string.rep(' ', left)
         -- draw title
-        gui:space(math.ceil((term_h / 2) - 4))
+        gui:space(math.ceil(top - 3))
         if title then
             gui:label(prefix .. title)
         else
@@ -223,16 +226,25 @@ function model.get_string(value, title)
         -- draw buttons
         local rt = false
         gui:row(1, function()
-            gui:label(string.rep(' ', left - 1 + data.width - 2 - 17))
-            if gui:button("Cancel") then
-                click_ok = false
-                rt = true
-            end
+            gui:label(string.rep(' ', left + data.width - 2 - 17))
+            gui.theme:temp({
+                ['button.background'] = '#background'
+            }, function()
+                if gui:button("Cancel", 3) then
+                    click_ok = false
+                    rt = true
+                end
+            end)
+
             gui:space()
-            if gui:button("Submit") then
-                click_ok = true
-                rt = true
-            end
+            gui.theme:temp({
+                ['button.background'] = '#submit_color'
+            }, function()
+                if gui:button("Submit", 3) then
+                    click_ok = true
+                    rt = true
+                end
+            end)
         end)
 
         -- draw cursor
@@ -256,7 +268,7 @@ function model.get_number(value, title, allow_decimal)
     gui.theme:set('button.right_char', ' ')
 
     local KEYBOARD_WIDTH = 23
-    local VALUE_WIDTH = 17
+    local VALUE_WIDTH = 20
     local GAP_WIDTH = 3
 
     local text = tostring(value)
@@ -334,7 +346,11 @@ function model.get_number(value, title, allow_decimal)
                 gui:label(title)
                 gui:space()
                 gui:label(text, 'r')
-                gui:label(string.rep(string.char(131), VALUE_WIDTH))
+                gui.theme:temp({
+                    ['color'] = '#ghost_color'
+                }, function()
+                    gui:label(string.rep(string.char(131), VALUE_WIDTH))
+                end)
                 gui:space()
                 gui:reverse_row('3', function()
                     gui.theme:temp({
