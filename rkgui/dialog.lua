@@ -93,7 +93,7 @@ function InputData:process_input_event(gui)
                 self:cursor_to_home()
             elseif param == keys['end'] then
                 self:cursor_to_end()
-            elseif param == keys.backspace and data.cursor > 1 then
+            elseif param == keys.backspace and self.cursor > 1 then
                 self:cursor_to_left()
                 self:delete_cursor_char()
             elseif param == keys.delete then
