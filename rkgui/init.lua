@@ -5,7 +5,7 @@ local text_tools = require 'rkgui.text'
 ---@class GUI
 ---@field theme Theme
 ---@field last_rect Rect
----@field _layout Stack
+---@field _layouts Stack<Layout>
 ---@field _hover {x:number,y:number}
 ---@field _last_event {name:string,args:any[]}
 ---@field _debug_buffer {msg:string,level:number}[]
@@ -126,6 +126,11 @@ function GUI:space(space)
     else
         self:malloc_rect(1, space)
     end
+end
+
+--- @return Rect
+function GUI:get_current_layout_rect()
+    return self._layouts:peek().rect
 end
 
 --- @param width number | string

@@ -173,13 +173,19 @@ function check_gui_key_pressed(gui)
     return nil
 end
 
+--- @return GUI
+function create_gui()
+    gui = require('rkgui').new()
+    gui:remove_shortcut('exit')
+    return gui
+end
+
 --- @param value string
 --- @param title string
 --- @return string
 function model.get_string(value, title)
     --- @module 'rkgui'
-    gui = require('rkgui').new()
-    gui:remove_shortcut('exit')
+    gui = create_gui()
     gui.theme:set('button.left_char', ' ')
     gui.theme:set('button.right_char', ' ')
     local source = value
@@ -262,8 +268,7 @@ function model.get_string(value, title)
 end
 
 function model.get_number(value, title, allow_decimal)
-    gui = require('rkgui').new()
-    gui:remove_shortcut('exit')
+    gui = create_gui()
     gui.theme:set('button.left_char', ' ')
     gui.theme:set('button.right_char', ' ')
 
@@ -436,6 +441,106 @@ function model.get_number(value, title, allow_decimal)
     end)
 
     return value
+end
+
+function draw_message(title, message, extend_height)
+    local rect = gui:get_current_layout_rect()
+    local _, term_h = term.getSize()
+
+    if message then
+        local message_h = #text_tool.wrap(message)
+        gui:space(math.floor((term_h - message_h - extend_height - 3) / 2))
+        gui:label(title)
+        gui.theme:temp({ ['color'] = '#ghost_color' }, function()
+            gui:label(string.rep(string.char(131), rect.w))
+        end)
+        gui:space()
+        gui:multiline_label(message)
+    else
+        local message_h = #text_tool.wrap(title)
+        gui:space(math.floor((term_h - message_h - extend_height) / 2))
+        gui:multiline_label(title)
+    end
+end
+
+--- @param gui GUI
+--- @param buttons ({text:string, color:any} | string)[]
+--- @return number|nil click button index
+function draw_button(gui, buttons)
+    local result
+    gui:reverse_row(3, function()
+        for i = 1, #buttons do
+            local button = buttons[i]
+            if type(button) == 'table' then
+                gui.theme:temp({ ['button.background'] = button.color }, function()
+                    if gui:button(button.text, 3) then
+                        result = i
+                    end
+                end)
+            else
+                if gui:button(button, 3) then
+                    result = i
+                end
+            end
+            gui:space()
+        end
+    end)
+    return result
+end
+
+--- @param title string
+--- @param message string|nil
+--- @param buttons ({text:string, color:any} | string)[]
+--- @return number|nil click button index
+function show_dialog(title, message, buttons)
+    gui = create_gui()
+    gui.theme:set('button.left_char', ' ')
+    gui.theme:set('button.right_char', ' ')
+    local click_button
+
+    gui:start(function()
+        gui:row('+', function()
+            gui:space('10%')
+            gui:col('80%', function()
+                draw_message(title, message, 4)
+                gui:space()
+                click_button = draw_button(gui, buttons)
+            end)
+        end)
+        if click_button then
+            return true
+        end
+    end)
+    return click_button
+end
+
+--- @param title string
+--- @param message string|nil
+function model.alert(title, message)
+    show_dialog(title, message, { '  OK  ' })
+end
+
+--- @param title string
+--- @param message string|nil
+--- @return boolean
+function model.confirm(title, message)
+    if show_dialog(title, message, { '  Yes  ', { text = '  No  ', color = '#background' } }) == 1 then
+        return true
+    end
+    return false
+end
+
+--- @param title string
+--- @param message string|nil
+--- @return boolean|nil
+function model.prompt(title, message)
+    local click = show_dialog(title, message, { '  Yes  ', '  No  ', { text = ' Cancel ', color = '#background' } })
+    if click == 1 then
+        return true
+    elseif click == 2 then
+        return false
+    end
+    return nil
 end
 
 return model

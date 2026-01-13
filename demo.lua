@@ -89,7 +89,7 @@ Switch tabs at the top of the screen to see more content!
 
             gui:space()
             if gui:button("Click me to input text") then
-                c_input_text = require('rkgui.input').get_string(c_input_text, "Input some text:")
+                c_input_text = require('rkgui.dialog').get_string(c_input_text, "Input some text:")
             end
             gui:label(c_input_text)
         end,
