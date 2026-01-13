@@ -87,7 +87,15 @@ function Theme:temp(properties, func)
     local reverse = {}
     for k in pairs(properties) do
         reverse[k] = self:get(k)
-        self:set(k, properties[k])
+        local v = properties[k]
+        if type(v) == 'string' and v:sub(1,1) == '$' then
+            local path = v:sub(2)
+            v = reverse[path]
+            if v == nil then
+                v = self:get(path)
+            end
+        end
+        self:set(k, v)
     end
     func()
     for k in pairs(reverse) do
