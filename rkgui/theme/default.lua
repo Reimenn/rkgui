@@ -9,14 +9,12 @@ return function()
         submit_color = colors.green,
         ghost_color = colors.gray,
         button = {
-            background = colors.gray,
+            background = '#ghost_color',
             holding = {
                 background = colors.lightGray,
-                color = colors.white,
             },
             click = {
-                background = colors.black,
-                color = colors.white,
+                background = '#background',
             },
             left_char = '[',
             right_char = ']'
@@ -24,63 +22,63 @@ return function()
         label = {
         },
         title = {
-            line = colors.gray
+            line = '#ghost_color'
         },
         checkbox = {
             checked = {
-                color = colors.green,
-                background = colors.green,
+                color = '#submit_color',
+                background = '#submit_color',
                 char = ' '
             },
             unchecked = {
-                color = colors.gray,
+                color = '#ghost_color',
                 char = string.char(127)
             },
         },
         toggle = {
             thumb = {
-                color = colors.white,
-                background = colors.white,
+                color = '#color',
+                background = '#color',
                 char = ' '
             },
             track = {
                 on = {
-                    color = colors.green,
-                    background = colors.green,
+                    color = '#submit_color',
+                    background = '#submit_color',
                     char = ' '
                 },
                 off = {
-                    color = colors.gray,
+                    color = '#ghost_color',
                     char = string.char(127)
                 }
             }
         },
         progress = {
             bar = {
-                background = colors.gray,
-                color = colors.white
+                background = '#ghost_color',
+                color = '#color'
             }
         },
         slider = {
             slider = {
-                color = colors.gray,
+                color = '#ghost_color',
                 char = string.char(140)
             },
             endpoint = {
-                color = colors.white
+                color = '#color'
             },
             indicator = {
-                color = colors.white,
-                background = colors.white,
+                color = '#color',
+                background = '#color',
                 char = ' '
             },
         },
         tabs = {
-            background = colors.gray,
-            color = colors.black,
+            background = '#ghost_color',
+            color = '#background',
             selected = {
-                background = colors.lightGray,
-                color = colors.black,
+                background = '#background',
+                color = '#color',
             },
         },
     }
