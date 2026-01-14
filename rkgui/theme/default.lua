@@ -8,8 +8,9 @@ return function()
         danger_color = colors.red,
         submit_color = colors.green,
         ghost_color = colors.gray,
+        action_color = colors.gray,
         button = {
-            background = '#ghost_color',
+            background = '#action_color',
             holding = {
                 background = colors.lightGray,
             },
@@ -74,7 +75,7 @@ return function()
             },
         },
         tabs = {
-            background = '#ghost_color',
+            background = '#action_color',
             color = '#background',
             selected = {
                 background = '#background',
