@@ -46,6 +46,32 @@ function module.label(gui, text, align)
     gui.theme:draw_string('label', text)
 end
 
+--- @param gui GUI
+--- @param text string
+--- @param align 'l' | 'c' | 'r' | nil
+function module.title(gui, text, align)
+    local rect = gui:malloc_rect(#text, 3)
+    if align == nil then
+        align = 'l'
+    end
+
+    if align == 'r' then
+        text = text_tools.right(text .. ' ', rect.w)
+    elseif align == 'c' then
+        text = text_tools.center(text, rect.w)
+    else
+        text = text_tools.left(' ' .. text, rect.w)
+    end
+
+    term.setCursorPos(rect.x, rect.y + 1)
+    gui.theme:draw_string('title', text)
+
+    term.setCursorPos(rect.x, rect.y + 2)
+    term.setTextColor(gui.theme:get('title.line'))
+    term.setBackgroundColor(gui.theme:get('background'))
+    term.write(string.rep(string.char(131), rect.w))
+end
+
 --- @param text string
 --- @param checked boolean
 --- @return boolean

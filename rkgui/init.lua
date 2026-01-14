@@ -67,6 +67,12 @@ function GUI:label(text, align)
 end
 
 --- @param text string
+--- @param align nil | 'l' | 'r' | 'c'
+function GUI:title(text, align)
+    components.title(self, text, align)
+end
+
+--- @param text string
 function GUI:multiline_label(text)
     local total_w = self._layouts:peek().rect.w
     local line = text_tools.wrap(text, total_w)

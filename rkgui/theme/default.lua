@@ -23,6 +23,9 @@ return function()
         },
         label = {
         },
+        title = {
+            line = colors.gray
+        },
         checkbox = {
             checked = {
                 color = colors.green,

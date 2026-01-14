@@ -4,6 +4,11 @@ local dialog = require 'rkgui.dialog'
 local n = 12
 local t = 'hello'
 gui:start(function()
+    --gui:space()
+    gui:title("Hello~, in the title.")
+    gui:title("Hello~, in the title.", 'c')
+    gui:title("Hello~, in the title.", 'r')
+    gui:space()
     if gui:button('number ' .. tostring(n)) then
         n = dialog.get_number(n, 'Input Number:')
     end

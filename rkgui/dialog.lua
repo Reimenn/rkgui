@@ -444,18 +444,17 @@ function model.get_number(value, title, allow_decimal)
 end
 
 function draw_message(title, message, extend_height)
-    local rect = gui:get_current_layout_rect()
     local _, term_h = term.getSize()
 
     if message then
         local message_h = #text_tool.wrap(message)
-        gui:space(math.floor((term_h - message_h - extend_height - 3) / 2))
-        gui:label(title)
-        gui.theme:temp({ ['color'] = '#ghost_color' }, function()
-            gui:label(string.rep(string.char(131), rect.w))
-        end)
+        gui:space(math.floor((term_h - message_h - extend_height - 4) / 2))
+        gui:title(title)
         gui:space()
-        gui:multiline_label(message)
+        gui:row(message_h, function()
+            gui:space()
+            gui:multiline_label(message)
+        end)
     else
         local message_h = #text_tool.wrap(title)
         gui:space(math.floor((term_h - message_h - extend_height) / 2))

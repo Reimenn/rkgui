@@ -17,7 +17,7 @@ local pages = {
         name = "Welcom",
         draw = function()
             gui:space()
-            gui:label("RKGUI", 'c')
+            gui:title("RKGUI", 'c')
             gui:label("--Rika ", 'r')
             gui:space()
             gui:multiline_label([[
