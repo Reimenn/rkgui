@@ -107,7 +107,7 @@ Switch tabs at the top of the screen to see more content!
             gui:row(8, function()
                 gui:col('40%', function()
                     gui:space()
-                    c_check = gui:checkbox("Checkbox")
+                    c_check = gui:checkbox("Checkbox", c_check)
                     gui:space()
                     gui:button("button")
                     gui:space()
