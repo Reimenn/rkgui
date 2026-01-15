@@ -40,6 +40,8 @@ function module.label(gui, text, align)
         text = text_tools.right(text, rect.w)
     elseif align == 'c' then
         text = text_tools.center(text, rect.w)
+    else
+        text = text_tools.left(text, rect.w)
     end
 
     term.setCursorPos(rect.x, rect.y)

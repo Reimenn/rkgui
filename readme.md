@@ -1,4 +1,4 @@
-# RKGUI — A simple IMGUI‑style TUI library for CraftOS
+# RKGUI — A simple IMGUI-style TUI library for CraftOS
 
 RKGUI 是一个运行在 CraftOS / ComputerCraft / CC:Tweaked 上的字符 GUI 库，设计风格类似 ImGui，让你可以用极少的代码快速构建交互式界面。
 
