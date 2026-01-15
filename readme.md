@@ -1,16 +1,19 @@
-# RKGUI — A simple IMGUI-style TUI library for CraftOS
+# RKGUI - A simple IMGUI-style TUI library for CraftOS
 
-RKGUI 是一个运行在 CraftOS / ComputerCraft / CC:Tweaked 上的字符 GUI 库，设计风格类似 ImGui，让你可以用极少的代码快速构建交互式界面。
+[中文版 Chinese edition](readme_zh.md)
 
-### 特性
+RKGUI is a text-based GUI library for CraftOS / ComputerCraft / CC:Tweaked.
+Its design is inspired by ImGui, allowing you to build interactive interfaces with very little code.
 
-- 极简的 API，无需维护复杂状态，调用即绘制
-- 组件完善：按钮、文本、输入框、Dialog、布局
-- 可自定义主题，自由搭配色彩
-- 自定义组件非常简单
-- 触摸屏支持，可以在 MC 世界中通过显示器交互
+### Features
 
-### Hello World
+- Minimal API - no complex state management, widgets render immediately when called
+- Rich set of components: buttons, text, input fields, dialogs, layouts
+- Customizable themes with flexible color combinations
+- Very easy to create your own custom components
+- Touchscreen support - interact directly through monitors in the Minecraft world
+
+Example: click a button to show Hello, World!:
 
 ```lua
 local rkgui = require 'rkgui'
@@ -23,4 +26,34 @@ app:start(function()
     end
 end)
 ```
+
+### Component Showcase
+
+> Run `demo.lua` in the `example` directory to see the full component showcase.
+Here are some screenshots:
+
+Labels, buttons, checkboxes, toggles:
+
+![demo_base.png](images/demo_base.png)
+
+Tabs, progress bars, sliders:
+
+![demo_slider.png](images/demo_slider.png)
+
+Confirmation dialog:
+
+![dialog](images/dialog.png)
+
+Text input:
+
+![text-input](images/text_input.png)
+
+Number input:
+
+![number-input](images/number_input.png)
+
+Flexible layout and styling:
+
+![layout](images/layout_and_style.png)
+
 
