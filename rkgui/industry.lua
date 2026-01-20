@@ -5,13 +5,17 @@ local model = {}
 local default_theme = {
     breaker = {
         border = {
-            color = colors.brown,
-            char = string.char(127)
+            color = colors.orange,
         },
         track = colors.gray,
         handler = colors.white,
         open_color = colors.red,
         close_color = colors.green,
+    },
+    capacity_bar = {
+        border = {
+            color = colors.gray
+        }
     }
 }
 
@@ -144,7 +148,7 @@ function IndustryComponents:breaker(is_break, text)
         -- draw border
         term.setCursorPos(center_x - 1, center_y - 1)
         self.gui.theme:apply('industry.breaker.border')
-        draw_outer_border(7, rect.h - (text and 1 or 0))
+        draw_border(7, rect.h - (text and 1 or 0))
 
         -- click check
         local click_rect = utils.Rect.new()
@@ -194,14 +198,48 @@ function IndustryComponents:breaker(is_break, text)
     return is_break
 end
 
+function IndustryComponents:capacity_bar(percent, width, height, text)
+    percent = math.max(0, math.min(1, percent))
+    local rect = self.gui:malloc_rect(math.max(width, text and #text or 0), height)
+    local text_h = text and 1 or 0
+    local bar_h = height - 2 - text_h
+    self.gui.theme:apply('industry.capacity_bar.border')
+    term.setCursorPos(rect.x, rect.y)
+    draw_border(rect.w, rect.h - text_h)
+    paintutils.drawFilledBox(rect.x + 1, rect.y + 1, rect.x + rect.w - 2, rect.y + height - 2 - text_h,
+            self.gui.theme:get('industry.capacity_bar.background'))
+    local capacity_h = bar_h * percent
+
+    for i = 1, capacity_h do
+        term.setBackgroundColor(self.gui.theme:get('industry.capacity_bar.color'))
+        term.setCursorPos(rect.x + 1, rect.y + rect.h - text_h - i - 1)
+        term.write(string.rep(' ', rect.w - 2))
+    end
+
+    local extend_pixel = math.floor((capacity_h % 1) * 3)
+    if extend_pixel > 0 then
+        set_term_color(self.gui.theme:get('industry.capacity_bar.background'), self.gui.theme:get('industry.capacity_bar.color'))
+        term.setCursorPos(rect.x + 1, rect.y + rect.h - math.floor(capacity_h) - 2 - text_h)
+        local char = extend_pixel == 1 and 143 or 131
+        term.write(string.rep(string.char(char), rect.w - 2))
+    end
+
+    if text then
+        term.setCursorPos(rect.x, rect.y + rect.h - 1)
+        self.gui.theme:draw_string('industry.capacity_bar', text_utils.center(text, rect.w))
+    end
+end
+
 function model.demo()
     local app = require 'rkgui'.new()
     local industry = model.new(app)
     local breaked = false
+    
     app:start(function()
-        app:row(6, function()
+        
+        app:row(8, function()
             breaked = industry:breaker(breaked, "Breaker")
-            app:space()
+            industry:capacity_bar((os.clock() * 0.1) % 1, 5, 12, 'CAP')
         end)
     end)
 end
