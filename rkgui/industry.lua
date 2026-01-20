@@ -198,6 +198,10 @@ function IndustryComponents:breaker(is_break, text)
     return is_break
 end
 
+--- @param percent number 0~1
+--- @param width number
+--- @param height number
+--- @param text string
 function IndustryComponents:capacity_bar(percent, width, height, text)
     percent = math.max(0, math.min(1, percent))
     local rect = self.gui:malloc_rect(math.max(width, text and #text or 0), height)
@@ -236,7 +240,6 @@ function model.demo()
     local breaked = false
     
     app:start(function()
-        
         app:row(8, function()
             breaked = industry:breaker(breaked, "Breaker")
             industry:capacity_bar((os.clock() * 0.1) % 1, 5, 12, 'CAP')
