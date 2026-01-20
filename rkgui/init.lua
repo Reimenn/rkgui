@@ -120,17 +120,26 @@ function GUI:tabs(selected, tabs, full)
 end
 
 --- @param space number | nil
-function GUI:space(space)
+--- @param char string | nil
+function GUI:space(space, char)
     if space == nil then
         space = 1
     end
 
     -- @type Layout
     local l = self._layouts:peek()
+    local rect
     if l.dir == 'lr' or l.dir == 'rl' then
-        self:malloc_rect(space, 1)
+        rect = self:malloc_rect(space, '+')
     else
-        self:malloc_rect(1, space)
+        rect = self:malloc_rect('+', space)
+    end
+
+    if char then
+        for i = rect.y, rect.y + rect.h - 1 do
+            term.setCursorPos(rect.x, i)
+            term.write(string.rep(char, rect.w))
+        end
     end
 end
 
@@ -194,16 +203,15 @@ function GUI:malloc_rect(width, height)
     local layout = self._layouts:peek()
     self.last_rect = utils.Rect.new()
 
-    local w = utils.parse_size(width, layout.rect.w, layout.offset)
-    local h = utils.parse_size(height, layout.rect.h, layout.offset)
-
     if layout.dir == "tb" then
+        local h = utils.parse_size(height, layout.rect.h, layout.offset)
         self.last_rect.x = layout.rect.x
         self.last_rect.y = layout.rect.y + layout.offset
         self.last_rect.w = layout.rect.w
         self.last_rect.h = h
         layout.offset = layout.offset + self.last_rect.h
     elseif layout.dir == "bt" then
+        local h = utils.parse_size(height, layout.rect.h, layout.offset)
         self.last_rect.x = layout.rect.x
         self.last_rect.y = layout.rect.y + layout.rect.h - layout.offset
         self.last_rect.w = layout.rect.w
@@ -211,29 +219,33 @@ function GUI:malloc_rect(width, height)
         layout.offset = layout.offset + self.last_rect.h
         self.last_rect.y = self.last_rect.y - self.last_rect.h
     elseif layout.dir == "lr" then
+        local w = utils.parse_size(width, layout.rect.w, layout.offset)
+        local h = utils.parse_size(height, layout.rect.h, 0)
         self.last_rect.x = layout.rect.x + layout.offset
         self.last_rect.y = layout.rect.y
         self.last_rect.w = w
         if layout.rect.h < h then
-            local tb = self._layouts:peek_last(function(ele)
-                return ele.dir == 'tb'
+            local v_layout = self._layouts:peek_last(function(ele)
+                return ele.dir == 'tb' or ele.dir == 'bt'
             end)
-            local add = h - self.last_rect.h - 1
-            tb.offset = tb.offset + add
+            local add = h - layout.rect.h
+            v_layout.offset = v_layout.offset + add
             layout.rect.h = layout.rect.h + add
         end
         self.last_rect.h = h
         layout.offset = layout.offset + self.last_rect.w
     elseif layout.dir == "rl" then
+        local w = utils.parse_size(width, layout.rect.w, layout.offset)
+        local h = utils.parse_size(height, layout.rect.h, 0)
         self.last_rect.x = layout.rect.x + layout.rect.w - layout.offset
         self.last_rect.y = layout.rect.y
         self.last_rect.w = w
         if layout.rect.h < h then
-            local tb = self._layouts:peek_last(function(ele)
-                return ele.dir == 'tb'
+            local v_layout = self._layouts:peek_last(function(ele)
+                return ele.dir == 'tb' or ele.dir == 'bt'
             end)
-            local add = h - self.last_rect.h - 1
-            tb.offset = tb.offset + add
+            local add = h - layout.rect.h
+            v_layout.offset = v_layout.offset + add
             layout.rect.h = layout.rect.h + add
         end
         self.last_rect.h = h

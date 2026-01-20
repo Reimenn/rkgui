@@ -140,10 +140,17 @@ function model.demo()
     local breaked = false
 
     app:start(function()
+        app:space(1, '+')
         app:row(8, function()
             breaked = industry:breaker(breaked, "Breaker")
+            app:space(1, '+')
+            industry:capacity_bar((os.clock() * 0.1) % 1, 5, 12, 'CAP')
+            app:space(1, '+')
+            app:space(1, '+')
             industry:capacity_bar((os.clock() * 0.1) % 1, 5, 12, 'CAP')
         end)
+        app:space(1, '+')
+        app:label('123')
     end)
 end
 
