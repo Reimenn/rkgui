@@ -33,106 +33,6 @@ function model.new(gui)
     }, IndustryComponents)
 end
 
-local set_term_color = function(fg, bg)
-    term.setTextColor(fg)
-    term.setBackgroundColor(bg)
-end
-
---- @param width number
---- @param height number
-local draw_border = function(width, height)
-    local bg = term.getBackgroundColor()
-    local fg = term.getTextColor()
-    local x, y = term.getCursorPos()
-    set_term_color(bg, fg)
-    term.write(string.char(159))
-    term.write(string.rep(string.char(143), width - 2))
-    set_term_color(fg, bg)
-    term.write(string.char(144))
-
-    set_term_color(bg, fg)
-    for i = 1, height - 2 do
-        term.setCursorPos(x, y + i)
-        term.write(string.char(149))
-    end
-    set_term_color(fg, bg)
-    for i = 1, height - 2 do
-        term.setCursorPos(x + width - 1, y + i)
-        term.write(string.char(149))
-    end
-
-    term.setCursorPos(x, y + height - 1)
-    term.write(string.char(130))
-    term.write(string.rep(string.char(131), width - 2))
-    term.write(string.char(129))
-end
-
---- @param width number
---- @param height number
-local draw_bold_border = function(width, height)
-    local bg = term.getBackgroundColor()
-    local fg = term.getTextColor()
-    local x, y = term.getCursorPos()
-    set_term_color(bg, fg)
-    term.write(string.rep(string.char(131), width))
-
-    term.setBackgroundColor(fg)
-    for i = 1, height - 2 do
-        term.setCursorPos(x, y + i)
-        term.write(' ')
-        term.setCursorPos(x + width - 1, y + i)
-        term.write(' ')
-    end
-
-    term.setCursorPos(x, y + height - 1)
-    set_term_color(fg, bg)
-    term.write(string.rep(string.char(143), width))
-end
-
---- @param width number
---- @param height number
-local draw_outer_border = function(width, height)
-    local bg = term.getBackgroundColor()
-    local fg = term.getTextColor()
-    local x, y = term.getCursorPos()
-
-    term.write(string.char(156))
-    term.write(string.rep(string.char(140), width - 2))
-    set_term_color(bg, fg)
-    term.write(string.char(147))
-
-    for i = 1, height - 2 do
-        term.setCursorPos(x + width - 1, y + i)
-        term.write(string.char(149))
-    end
-    set_term_color(fg, bg)
-    for i = 1, height - 2 do
-        term.setCursorPos(x, y + i)
-        term.write(string.char(149))
-    end
-
-    term.setCursorPos(x, y + height - 1)
-    term.write(string.char(141))
-    term.write(string.rep(string.char(140), width - 2))
-    term.write(string.char(142))
-end
-
---- @param char string
---- @param width number
---- @param height number
-local draw_char_border = function(char, width, height)
-    local cx, cy = term.getCursorPos()
-    term.write(string.rep(char, width))
-    for i = 1, height - 2 do
-        term.setCursorPos(cx, cy + i)
-        term.write(char)
-        term.setCursorPos(cx + width - 1, cy + i)
-        term.write(char)
-    end
-    term.setCursorPos(cx, cy + height - 1)
-    term.write(string.rep(char, width))
-end
-
 --- @param is_break boolean
 --- @param text string | nil
 --- @return boolean
@@ -148,7 +48,7 @@ function IndustryComponents:breaker(is_break, text)
         -- draw border
         term.setCursorPos(center_x - 1, center_y - 1)
         self.gui.theme:apply('industry.breaker.border')
-        draw_border(7, rect.h - (text and 1 or 0))
+        utils.draw_border(7, rect.h - (text and 1 or 0))
 
         -- click check
         local click_rect = utils.Rect.new()
@@ -209,7 +109,7 @@ function IndustryComponents:capacity_bar(percent, width, height, text)
     local bar_h = height - 2 - text_h
     self.gui.theme:apply('industry.capacity_bar.border')
     term.setCursorPos(rect.x, rect.y)
-    draw_border(rect.w, rect.h - text_h)
+    utils.draw_border(rect.w, rect.h - text_h)
     paintutils.drawFilledBox(rect.x + 1, rect.y + 1, rect.x + rect.w - 2, rect.y + height - 2 - text_h,
             self.gui.theme:get('industry.capacity_bar.background'))
     local capacity_h = bar_h * percent
@@ -222,7 +122,7 @@ function IndustryComponents:capacity_bar(percent, width, height, text)
 
     local extend_pixel = math.floor((capacity_h % 1) * 3)
     if extend_pixel > 0 then
-        set_term_color(self.gui.theme:get('industry.capacity_bar.background'), self.gui.theme:get('industry.capacity_bar.color'))
+        utils.set_term_color(self.gui.theme:get('industry.capacity_bar.background'), self.gui.theme:get('industry.capacity_bar.color'))
         term.setCursorPos(rect.x + 1, rect.y + rect.h - math.floor(capacity_h) - 2 - text_h)
         local char = extend_pixel == 1 and 143 or 131
         term.write(string.rep(string.char(char), rect.w - 2))
@@ -238,7 +138,7 @@ function model.demo()
     local app = require 'rkgui'.new()
     local industry = model.new(app)
     local breaked = false
-    
+
     app:start(function()
         app:row(8, function()
             breaked = industry:breaker(breaked, "Breaker")

@@ -40,7 +40,6 @@ local Rect = {}
 model.Rect = Rect
 Rect.__index = model.Rect
 
-
 --- @return Rect
 function Rect.new()
     local inst = setmetatable({}, Rect)
@@ -162,6 +161,106 @@ function model.parse_size(value, max, offset)
         end
     end
     return math.floor(max)
+end
+
+function model.set_term_color(fg, bg)
+    term.setTextColor(fg)
+    term.setBackgroundColor(bg)
+end
+
+--- @param width number
+--- @param height number
+function model.draw_border(width, height)
+    local bg = term.getBackgroundColor()
+    local fg = term.getTextColor()
+    local x, y = term.getCursorPos()
+    model.set_term_color(bg, fg)
+    term.write(string.char(159))
+    term.write(string.rep(string.char(143), width - 2))
+    model.set_term_color(fg, bg)
+    term.write(string.char(144))
+
+    model.set_term_color(bg, fg)
+    for i = 1, height - 2 do
+        term.setCursorPos(x, y + i)
+        term.write(string.char(149))
+    end
+    model.set_term_color(fg, bg)
+    for i = 1, height - 2 do
+        term.setCursorPos(x + width - 1, y + i)
+        term.write(string.char(149))
+    end
+
+    term.setCursorPos(x, y + height - 1)
+    term.write(string.char(130))
+    term.write(string.rep(string.char(131), width - 2))
+    term.write(string.char(129))
+end
+
+--- @param width number
+--- @param height number
+function model.draw_bold_border(width, height)
+    local bg = term.getBackgroundColor()
+    local fg = term.getTextColor()
+    local x, y = term.getCursorPos()
+    model.set_term_color(bg, fg)
+    term.write(string.rep(string.char(131), width))
+
+    term.setBackgroundColor(fg)
+    for i = 1, height - 2 do
+        term.setCursorPos(x, y + i)
+        term.write(' ')
+        term.setCursorPos(x + width - 1, y + i)
+        term.write(' ')
+    end
+
+    term.setCursorPos(x, y + height - 1)
+    model.set_term_color(fg, bg)
+    term.write(string.rep(string.char(143), width))
+end
+
+--- @param width number
+--- @param height number
+function model.draw_outer_border(width, height)
+    local bg = term.getBackgroundColor()
+    local fg = term.getTextColor()
+    local x, y = term.getCursorPos()
+
+    term.write(string.char(156))
+    term.write(string.rep(string.char(140), width - 2))
+    model.set_term_color(bg, fg)
+    term.write(string.char(147))
+
+    for i = 1, height - 2 do
+        term.setCursorPos(x + width - 1, y + i)
+        term.write(string.char(149))
+    end
+    model.set_term_color(fg, bg)
+    for i = 1, height - 2 do
+        term.setCursorPos(x, y + i)
+        term.write(string.char(149))
+    end
+
+    term.setCursorPos(x, y + height - 1)
+    term.write(string.char(141))
+    term.write(string.rep(string.char(140), width - 2))
+    term.write(string.char(142))
+end
+
+--- @param char string
+--- @param width number
+--- @param height number
+function model.draw_char_border(char, width, height)
+    local cx, cy = term.getCursorPos()
+    term.write(string.rep(char, width))
+    for i = 1, height - 2 do
+        term.setCursorPos(cx, cy + i)
+        term.write(char)
+        term.setCursorPos(cx + width - 1, cy + i)
+        term.write(char)
+    end
+    term.setCursorPos(cx, cy + height - 1)
+    term.write(string.rep(char, width))
 end
 
 return model
