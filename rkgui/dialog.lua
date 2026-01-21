@@ -1,6 +1,6 @@
 local text_tool = require 'rkgui.text'
 
-local model = {}
+local module = {}
 
 --- @class InputData
 --- @field text string
@@ -181,7 +181,7 @@ end
 --- @param value string
 --- @param title string
 --- @return string
-function model.get_string(value, title)
+function module.get_string(value, title)
     --- @module 'rkgui'
     gui = create_gui()
     gui.theme:set('button.left_char', ' ')
@@ -265,7 +265,7 @@ function model.get_string(value, title)
     end
 end
 
-function model.get_number(value, title, allow_decimal)
+function module.get_number(value, title, allow_decimal)
     gui = create_gui()
     gui.theme:set('button.left_char', ' ')
     gui.theme:set('button.right_char', ' ')
@@ -513,14 +513,14 @@ end
 
 --- @param title string
 --- @param message string|nil
-function model.alert(title, message)
+function module.alert(title, message)
     show_dialog(title, message, { '  OK  ' })
 end
 
 --- @param title string
 --- @param message string|nil
 --- @return boolean
-function model.confirm(title, message)
+function module.confirm(title, message)
     if show_dialog(title, message, { '  Yes  ', { text = '  No  ', color = '#background' } }) == 1 then
         return true
     end
@@ -530,7 +530,7 @@ end
 --- @param title string
 --- @param message string|nil
 --- @return boolean|nil
-function model.prompt(title, message)
+function module.prompt(title, message)
     local click = show_dialog(title, message, { '  Yes  ', '  No  ', { text = ' Cancel ', color = '#background' } })
     if click == 1 then
         return true
@@ -540,4 +540,4 @@ function model.prompt(title, message)
     return nil
 end
 
-return model
+return module

@@ -1,12 +1,12 @@
 --- @type fun(text:string, width:number):string[]
 local text_wrap = require('cc.strings').wrap
 
-local model = {}
+local module = {}
 
 --- @param text string
 --- @param width number
 --- @return string
-function model.center(text, width)
+function module.center(text, width)
     local space = width - #text
     local res = text
     if space > 0 then
@@ -22,7 +22,7 @@ end
 --- @param text string
 --- @param width number
 --- @return string
-function model.right(text, width)
+function module.right(text, width)
     local space = width - #text
     if space <= 0 then
         return text
@@ -33,7 +33,7 @@ end
 --- @param text string
 --- @param width number
 --- @return string
-function model.left(text, width)
+function module.left(text, width)
     local space = width - #text
     if space <= 0 then
         return text
@@ -44,7 +44,7 @@ end
 --- @param source string
 --- @param width number
 --- @return string[]
-function model.wrap(source, width)
+function module.wrap(source, width)
     return text_wrap(source, width)
 end
 
@@ -52,7 +52,7 @@ end
 --- @param value string
 --- @param pos number
 --- @return string
-function model.insert(source, value, pos)
+function module.insert(source, value, pos)
     source = source:sub(1, pos - 2) .. value .. source:sub(pos - 1)
     return source
 end
@@ -60,7 +60,7 @@ end
 --- @param source string
 --- @param pos number
 --- @return string
-function model.removeAt(source, pos)
+function module.removeAt(source, pos)
     source = source:sub(1, pos - 1) .. source:sub(pos + 1)
     return source
 end
@@ -68,7 +68,7 @@ end
 --- @param source string
 --- @param limiter string
 --- @return table
-function model.split(source, limiter)
+function module.split(source, limiter)
     local res = {}
     local buf = ""
     for i = 1, #source do
@@ -87,4 +87,4 @@ function model.split(source, limiter)
     return res
 end
 
-return model
+return module

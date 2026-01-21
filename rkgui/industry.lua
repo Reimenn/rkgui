@@ -1,7 +1,7 @@
 local utils = require 'rkgui.utils'
 local text_utils = require 'rkgui.text'
 
-local model = {}
+local module = {}
 local default_theme = {
     breaker = {
         border = {
@@ -26,7 +26,7 @@ IndustryComponents.__index = IndustryComponents
 
 --- @param gui GUI
 --- @return IndustryComponents
-function model.new(gui)
+function module.new(gui)
     gui.theme:set('industry', default_theme)
     return setmetatable({
         gui = gui
@@ -134,9 +134,9 @@ function IndustryComponents:capacity_bar(percent, width, height, text)
     end
 end
 
-function model.demo()
+function module.demo()
     local app = require 'rkgui'.new()
-    local industry = model.new(app)
+    local industry = module.new(app)
     local breaked = false
 
     app:start(function()
@@ -147,4 +147,4 @@ function model.demo()
     end)
 end
 
-return model
+return module

@@ -30,15 +30,15 @@ local function serializeTable(val, name, skipnewlines, depth)
     return tmp
 end
 
-local model = {}
+local module = {}
 --- @class Rect
 --- @field x number
 --- @field y number
 --- @field w number
 --- @field h number
 local Rect = {}
-model.Rect = Rect
-Rect.__index = model.Rect
+module.Rect = Rect
+Rect.__index = module.Rect
 
 --- @return Rect
 function Rect.new()
@@ -65,8 +65,8 @@ end
 --- @class Stack
 --- @field data table
 local Stack = {}
-model.Stack = Stack
-Stack.__index = model.Stack
+module.Stack = Stack
+Stack.__index = module.Stack
 
 --- @return Stack
 function Stack.new()
@@ -115,8 +115,8 @@ end
 --- @field offset number
 --- @field dir 'tb' | 'lr'
 local Layout = {}
-model.Layout = Layout
-Layout.__index = model.Layout
+module.Layout = Layout
+Layout.__index = module.Layout
 
 function Layout.new(rect, dir)
     local inst = setmetatable({}, Layout)
@@ -126,7 +126,7 @@ function Layout.new(rect, dir)
     return inst
 end
 
-function model.shallow_copy(obj)
+function module.shallow_copy(obj)
     local res = setmetatable({}, obj.__index)
     for k, v in pairs(obj) do
         res[k] = v
@@ -138,7 +138,7 @@ end
 --- @param max number
 --- @param offset number
 --- @return number
-function model.parse_size(value, max, offset)
+function module.parse_size(value, max, offset)
     if type(value) == "number" then
         return math.floor(value)
     end
@@ -163,29 +163,29 @@ function model.parse_size(value, max, offset)
     return math.floor(max)
 end
 
-function model.set_term_color(fg, bg)
+function module.set_term_color(fg, bg)
     term.setTextColor(fg)
     term.setBackgroundColor(bg)
 end
 
 --- @param width number
 --- @param height number
-function model.draw_border(width, height)
+function module.draw_border(width, height)
     local bg = term.getBackgroundColor()
     local fg = term.getTextColor()
     local x, y = term.getCursorPos()
-    model.set_term_color(bg, fg)
+    module.set_term_color(bg, fg)
     term.write(string.char(159))
     term.write(string.rep(string.char(143), width - 2))
-    model.set_term_color(fg, bg)
+    module.set_term_color(fg, bg)
     term.write(string.char(144))
 
-    model.set_term_color(bg, fg)
+    module.set_term_color(bg, fg)
     for i = 1, height - 2 do
         term.setCursorPos(x, y + i)
         term.write(string.char(149))
     end
-    model.set_term_color(fg, bg)
+    module.set_term_color(fg, bg)
     for i = 1, height - 2 do
         term.setCursorPos(x + width - 1, y + i)
         term.write(string.char(149))
@@ -199,11 +199,11 @@ end
 
 --- @param width number
 --- @param height number
-function model.draw_bold_border(width, height)
+function module.draw_bold_border(width, height)
     local bg = term.getBackgroundColor()
     local fg = term.getTextColor()
     local x, y = term.getCursorPos()
-    model.set_term_color(bg, fg)
+    module.set_term_color(bg, fg)
     term.write(string.rep(string.char(131), width))
 
     term.setBackgroundColor(fg)
@@ -215,27 +215,27 @@ function model.draw_bold_border(width, height)
     end
 
     term.setCursorPos(x, y + height - 1)
-    model.set_term_color(fg, bg)
+    module.set_term_color(fg, bg)
     term.write(string.rep(string.char(143), width))
 end
 
 --- @param width number
 --- @param height number
-function model.draw_outer_border(width, height)
+function module.draw_outer_border(width, height)
     local bg = term.getBackgroundColor()
     local fg = term.getTextColor()
     local x, y = term.getCursorPos()
 
     term.write(string.char(156))
     term.write(string.rep(string.char(140), width - 2))
-    model.set_term_color(bg, fg)
+    module.set_term_color(bg, fg)
     term.write(string.char(147))
 
     for i = 1, height - 2 do
         term.setCursorPos(x + width - 1, y + i)
         term.write(string.char(149))
     end
-    model.set_term_color(fg, bg)
+    module.set_term_color(fg, bg)
     for i = 1, height - 2 do
         term.setCursorPos(x, y + i)
         term.write(string.char(149))
@@ -250,7 +250,7 @@ end
 --- @param char string
 --- @param width number
 --- @param height number
-function model.draw_char_border(char, width, height)
+function module.draw_char_border(char, width, height)
     local cx, cy = term.getCursorPos()
     term.write(string.rep(char, width))
     for i = 1, height - 2 do
@@ -263,4 +263,4 @@ function model.draw_char_border(char, width, height)
     term.write(string.rep(char, width))
 end
 
-return model
+return module
