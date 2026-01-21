@@ -5,6 +5,7 @@ local text_tools = require 'rkgui.text'
 ---@class GUI
 ---@field theme Theme
 ---@field last_rect Rect
+---@field show_logs boolean
 ---@field _layouts Stack<Layout>
 ---@field _hover {x:number,y:number}
 ---@field _last_event {name:string,args:any[]}
@@ -15,12 +16,14 @@ local text_tools = require 'rkgui.text'
 local GUI = {}
 GUI.__index = GUI
 
+--- @param is_sub_view boolean|nil
 --- @return GUI
-function GUI.new()
+function GUI.new(is_sub_view)
     --- @type GUI
     local inst = setmetatable({
         theme = require 'rkgui.theme.default'(),
         last_rect = nil,
+        show_logs = false,
         _layouts = utils.Stack.new(),
         _hover = nil,
         _last_event = {},
@@ -29,9 +32,15 @@ function GUI.new()
         _holding_keys = {},
         _end_loop = false
     }, GUI)
-    inst:add_shortcut('exit', { keys.leftCtrl, keys.c }, function()
-        inst:stop()
-    end)
+    if not is_sub_view then
+        inst:add_shortcut('exit', { keys.leftCtrl, keys.c }, function()
+            inst:stop()
+        end)
+        inst:add_shortcut('logs', { keys.leftAlt, keys.l }, function()
+            inst.show_logs = not inst.show_logs
+        end)
+    end
+
     return inst
 end
 
@@ -257,7 +266,7 @@ function GUI:malloc_rect(width, height)
 end
 
 --- @param msg any
---- @param level? 'info'|'warning'|'error'
+--- @param level 'info'|'warning'|'error'|nil
 function GUI:debug(msg, level)
     if level == nil then
         level = 'info'
@@ -293,7 +302,7 @@ function GUI:remove_shortcut(name)
     end
 end
 
-function GUI:_draw_debug()
+function GUI:_draw_log_line()
     if #(self._debug_buffer) <= 0 then
         return
     end
@@ -320,6 +329,23 @@ function GUI:_draw_debug()
     end
 
     term.setCursorPos(ox, oy)
+end
+
+function GUI:_draw_log_view()
+    term.setBackgroundColor(self.theme:get('background'))
+    term.clear()
+    local color = { info = colors.black, warning = colors.orange, error = colors.red }
+    local _, th = term.getSize()
+    local count = 0
+    for i = #self._debug_buffer, 1, -1 do
+        count = count + 1
+        local y = th - count + 1
+        if y > 0 then
+            term.setCursorPos(1, y)
+            term.setBackgroundColor(color[self._debug_buffer[i].level])
+            term.write(self._debug_buffer[i].msg)
+        end
+    end
 end
 
 function GUI:_check_keyboard_shortcuts()
@@ -401,7 +427,11 @@ function GUI:start(view)
         term.clear()
 
         end_loop = view() or end_loop
-        self:_draw_debug()
+        if self.show_logs then
+            self:_draw_log_view()
+        else
+            self:_draw_log_line()
+        end
         end_loop = self:_pull_event() or end_loop
 
         self._layouts:pop()

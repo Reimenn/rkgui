@@ -175,9 +175,7 @@ end
 
 --- @return GUI
 function create_gui()
-    gui = require('rkgui').new()
-    gui:remove_shortcut('exit')
-    return gui
+    return require('rkgui').new(true)
 end
 
 --- @param value string
