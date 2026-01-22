@@ -2,6 +2,13 @@ local text_tool = require 'rkgui.text'
 
 local module = {}
 
+--- Dialog helpers for RKGUI.
+---
+--- This module provides reusable dialogs and small UI utilities such as:
+--- - text input (`get_string`)
+--- - number input with on-screen keypad (`get_number`)
+--- - alert / confirm / prompt style message boxes.
+
 --- @class InputData
 --- @field text string
 --- @field cursor number
@@ -11,8 +18,10 @@ local module = {}
 local InputData = {}
 InputData.__index = InputData
 
+--- Create a new `InputData` object to manage single-line text input.
+---
 --- @param default_text string
---- @param width number
+--- @param width number Total width of the input field (including arrow/spacing)
 --- @return InputData
 function InputData.new(default_text, width)
     if default_text == nil then
@@ -28,12 +37,16 @@ function InputData.new(default_text, width)
     return inst
 end
 
+--- Update the total width of this input field.
+---
+--- This also recalculates the internal text area width.
 --- @param width number
 function InputData:set_width(width)
     self.width = width
     self.text_width = width - 2
 end
 
+--- Move cursor one character to the right, adjusting scroll if needed.
 function InputData:cursor_to_right()
     if self.cursor <= #self.text then
         self.cursor = self.cursor + 1
@@ -43,6 +56,7 @@ function InputData:cursor_to_right()
     end
 end
 
+--- Move cursor one character to the left, adjusting scroll if needed.
 function InputData:cursor_to_left()
     if self.cursor > 1 then
         self.cursor = self.cursor - 1
@@ -52,6 +66,7 @@ function InputData:cursor_to_left()
     end
 end
 
+--- Move cursor to the end of text, adjusting scroll so the end is visible.
 function InputData:cursor_to_end()
     self.cursor = #self.text + 1
     if self.cursor > self.text_width then
@@ -59,24 +74,30 @@ function InputData:cursor_to_end()
     end
 end
 
+--- Move cursor to the start of text.
 function InputData:cursor_to_home()
     self.cursor = 1
     self.scroll = 1
 end
 
+--- Insert a character at the cursor position and advance the cursor.
 function InputData:insert(char)
     self.text = text_tool.insert(self.text, char, self.cursor + 1)
     self:cursor_to_right()
 end
 
+--- Delete the character at the current cursor position.
 function InputData:delete_cursor_char()
     self.text = text_tool.removeAt(self.text, self.cursor)
 end
 
---- @return {pressed_enter:boolean, pressed_alt:boolean}
+--- Handle keyboard/char events for this input field.
+---
+--- It reads from `gui._last_event` and updates cursor/text accordingly.
+---
+--- @param gui GUI
+--- @return {pressed_enter:boolean, pressed_alt:boolean} Flags for Enter/Alt actions.
 function InputData:process_input_event(gui)
-    --- @module 'rkgui'
-    gui = gui
     local res = {
         pressed_enter = false,
         pressed_alt = false
@@ -111,9 +132,13 @@ function InputData:process_input_event(gui)
     return res
 end
 
+--- Draw the input field (without the blinking cursor).
+---
+--- Allocates a 2-line area from the current layout, draws left/right arrows,
+--- visible text segment and an underline using the current theme.
+---
+--- @param gui GUI
 function InputData:draw(gui)
-    --- @module 'rkgui'
-    gui = gui
     local rect = gui:malloc_rect(self.width, 2)
 
     -- text
@@ -140,13 +165,18 @@ function InputData:draw(gui)
     self.term_cursor.y = rect.y
 end
 
---- It needs to be used after the draw method is executed; otherwise, the cursor position will be incorrect.
+--- Draw the blinking cursor of this input field.
+---
+--- Must be called **after** `draw()` in the same frame, otherwise the cursor
+--- position will be incorrect.
 function InputData:draw_cursor()
     term.setCursorPos(self.term_cursor.x, self.term_cursor.y)
     term.setTextColor(colors.red)
     term.setCursorBlink(true)
 end
 
+--- Read the last char input from a GUI event, if any.
+---
 --- @param gui GUI
 --- @return string | nil
 function check_gui_char_input(gui)
@@ -160,6 +190,8 @@ function check_gui_char_input(gui)
     return nil
 end
 
+--- Read the last key code from a GUI event, if any.
+---
 --- @param gui GUI
 --- @return number | nil
 function check_gui_key_pressed(gui)
@@ -173,16 +205,22 @@ function check_gui_key_pressed(gui)
     return nil
 end
 
+--- Create a sub-view `GUI` instance for dialogs.
+---
+--- The created GUI does not register global shortcuts like Ctrl+C.
 --- @return GUI
 function create_gui()
     return require('rkgui').new(true)
 end
 
+--- Show a single-line text input dialog.
+---
+--- Enter submits, Alt cancels. When canceled, the original `value` is returned.
+---
 --- @param value string
 --- @param title string
 --- @return string
 function module.get_string(value, title)
-    --- @module 'rkgui'
     gui = create_gui()
     gui.theme:set('button.left_char', ' ')
     gui.theme:set('button.right_char', ' ')
@@ -265,6 +303,15 @@ function module.get_string(value, title)
     end
 end
 
+--- Show a blocking number input dialog with an on-screen keypad.
+---
+--- Supports keyboard input and/or mouse clicks on the keypad. Enter submits,
+--- Cancel closes without changing the original value.
+---
+--- @param value number Initial value
+--- @param title string Label/title shown above the value
+--- @param allow_decimal boolean Whether decimal point is allowed
+--- @return number The final chosen value (or original value if canceled)
 function module.get_number(value, title, allow_decimal)
     gui = create_gui()
     gui.theme:set('button.left_char', ' ')
@@ -441,6 +488,14 @@ function module.get_number(value, title, allow_decimal)
     return value
 end
 
+--- Draw dialog content (title + optional message) vertically centered.
+---
+--- `extend_height` is used by callers to reserve extra vertical space
+--- (for example, for buttons under the message).
+---
+--- @param title string
+--- @param message string|nil
+--- @param extend_height number
 function draw_message(title, message, extend_height)
     local _, term_h = term.getSize()
 
@@ -460,6 +515,11 @@ function draw_message(title, message, extend_height)
     end
 end
 
+--- Draw a row of buttons and return the index of the clicked one (1-based).
+---
+--- Each element of `buttons` can be a string or a table
+--- `{ text = string, color = any }` to override the button background color.
+---
 --- @param gui GUI
 --- @param buttons ({text:string, color:any} | string)[]
 --- @return number|nil click button index
@@ -485,10 +545,12 @@ function draw_button(gui, buttons)
     return result
 end
 
+--- Low-level helper to show a generic dialog with custom buttons.
+---
 --- @param title string
 --- @param message string|nil
 --- @param buttons ({text:string, color:any} | string)[]
---- @return number|nil click button index
+--- @return number|nil Index of the clicked button, or `nil` if none
 function show_dialog(title, message, buttons)
     gui = create_gui()
     gui.theme:set('button.left_char', ' ')
@@ -511,15 +573,19 @@ function show_dialog(title, message, buttons)
     return click_button
 end
 
+--- Show a simple alert dialog with a single “OK” button.
+---
 --- @param title string
 --- @param message string|nil
 function module.alert(title, message)
     show_dialog(title, message, { '  OK  ' })
 end
 
+--- Show a confirm dialog with “Yes/No” buttons.
+---
 --- @param title string
 --- @param message string|nil
---- @return boolean
+--- @return boolean `true` when "Yes" is clicked, otherwise `false`
 function module.confirm(title, message)
     if show_dialog(title, message, { '  Yes  ', { text = '  No  ', color = '#background' } }) == 1 then
         return true
@@ -527,9 +593,11 @@ function module.confirm(title, message)
     return false
 end
 
+--- Show a 3-way prompt dialog with “Yes/No/Cancel” buttons.
+---
 --- @param title string
 --- @param message string|nil
---- @return boolean|nil
+--- @return boolean|nil `true` for Yes, `false` for No, `nil` for Cancel/closed
 function module.prompt(title, message)
     local click = show_dialog(title, message, { '  Yes  ', '  No  ', { text = ' Cancel ', color = '#background' } })
     if click == 1 then

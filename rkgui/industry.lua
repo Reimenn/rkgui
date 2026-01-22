@@ -2,6 +2,20 @@ local utils = require 'rkgui.utils'
 local text_utils = require 'rkgui.text'
 
 local module = {}
+
+--- Industrial-themed components for RKGUI.
+---
+--- This file provides a small set of "industrial control panel" style widgets,
+--- implemented on top of the core `GUI` API.
+---
+--- Usage:
+---
+--- ```lua
+--- local GUI = require 'rkgui'
+--- local industry = require 'rkgui.industry'
+--- local gui = GUI.new()
+--- local ind = industry.new(gui)
+--- ```
 local default_theme = {
     breaker = {
         border = {
@@ -24,6 +38,9 @@ local default_theme = {
 local IndustryComponents = {}
 IndustryComponents.__index = IndustryComponents
 
+--- Create an industrial components helper bound to a GUI instance.
+---
+--- This will also install the default industrial theme table under the `industry` key.
 --- @param gui GUI
 --- @return IndustryComponents
 function module.new(gui)
@@ -33,9 +50,11 @@ function module.new(gui)
     }, IndustryComponents)
 end
 
---- @param is_break boolean
---- @param text string | nil
---- @return boolean
+--- Draw a breaker switch widget and return the updated state.
+---
+--- @param is_break boolean Current breaker state (`true` = open/tripped, `false` = closed)
+--- @param text string | nil Optional label rendered under the widget
+--- @return boolean The updated breaker state
 function IndustryComponents:breaker(is_break, text)
     local text_width = text and #text or 0
     local malloc_width = math.max(7, text_width)
@@ -45,12 +64,12 @@ function IndustryComponents:breaker(is_break, text)
         local center_x = rect.x + math.floor(rect.w * 0.5 - 3) + 1;
         local center_y = rect.y + 1
 
-        -- draw border
+        -- Border
         term.setCursorPos(center_x - 1, center_y - 1)
         self.gui.theme:apply('industry.breaker.border')
         utils.draw_border(7, rect.h - (text and 1 or 0))
 
-        -- click check
+        -- Click handling (toggle)
         local click_rect = utils.Rect.new()
         click_rect.w, click_rect.h = 5, 3
         click_rect.x, click_rect.y = center_x, center_y
@@ -58,7 +77,7 @@ function IndustryComponents:breaker(is_break, text)
             is_break = not is_break
         end
 
-        -- draw track
+        -- Track
         term.setBackgroundColor(self.gui.theme:get('industry.breaker.track'))
         term.setCursorPos(center_x + 2, center_y)
         term.write(' ')
@@ -67,7 +86,7 @@ function IndustryComponents:breaker(is_break, text)
         term.setCursorPos(center_x + 2, center_y + 2)
         term.write(' ')
 
-        -- draw handle
+        -- Handle / indicator
         term.setBackgroundColor(self.gui.theme:get('industry.breaker.handler'))
         if self.gui:check_mouse_holding(click_rect) then
             term.setCursorPos(center_x, center_y + 1)
@@ -98,10 +117,14 @@ function IndustryComponents:breaker(is_break, text)
     return is_break
 end
 
---- @param percent number 0~1
---- @param width number|string
---- @param height number|string
---- @param text string
+--- Draw a vertical capacity bar.
+---
+--- `percent` is clamped to [0, 1]. The bar fills from bottom to top.
+---
+--- @param percent number Value in range [0,1]
+--- @param width number|string Width specification (number, percentage like `"50%"`, or `"+"`)
+--- @param height number|string Height specification (number, percentage like `"50%"`, or `"+"`)
+--- @param text string|nil Optional label rendered under the bar
 function IndustryComponents:capacity_bar(percent, width, height, text)
     percent = math.max(0, math.min(1, percent))
     width = self.gui:convert_width(width)
@@ -136,6 +159,7 @@ function IndustryComponents:capacity_bar(percent, width, height, text)
     end
 end
 
+--- Run a small interactive demo for industrial widgets.
 function module.demo()
     local app = require 'rkgui'.new()
     local industry = module.new(app)
