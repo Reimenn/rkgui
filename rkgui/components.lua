@@ -7,6 +7,7 @@ local module = {}
 --- @param height number
 --- @return boolean
 function module.button(gui, text, height)
+    text = tostring(text)
     local decoration_char_length = #gui.theme:get('button.left_char') + #gui.theme:get('button.right_char')
     local rect = gui:malloc_rect(#text + decoration_char_length, height)
 
@@ -30,11 +31,11 @@ function module.button(gui, text, height)
     return click
 end
 
+--- @param gui GUI
 --- @param text string
 --- @param align 'l' | 'c' | 'r' | nil
 function module.label(gui, text, align)
-    --- @module 'rkgui'
-    gui = gui
+    text = tostring(text)
     local rect = gui:malloc_rect(#text, 1)
     if align == 'r' then
         text = text_tools.right(text, rect.w)
@@ -52,6 +53,7 @@ end
 --- @param text string
 --- @param align 'l' | 'c' | 'r' | nil
 function module.title(gui, text, align)
+    text = tostring(text)
     local rect = gui:malloc_rect(#text, 3)
     if align == nil then
         align = 'l'
@@ -74,12 +76,12 @@ function module.title(gui, text, align)
     term.write(string.rep(string.char(131), rect.w))
 end
 
+--- @param gui GUI
 --- @param text string
 --- @param checked boolean
 --- @return boolean
 function module.checkbox(gui, text, checked)
-    --- @module 'rkgui'
-    gui = gui
+    text = tostring(text)
     local rect = gui:malloc_rect(#text + 2, 1)
     --- @type Rect
     local click_rect = utils.shallow_copy(rect)
@@ -98,12 +100,12 @@ function module.checkbox(gui, text, checked)
     return checked
 end
 
+--- @param gui GUI
 --- @param text string
 --- @param checked boolean
 --- @return boolean
 function module.toggle(gui, text, checked)
-    --- @module 'rkgui'
-    gui = gui
+    text = tostring(text)
     local rect = gui:malloc_rect(#text + 4, 1)
 
     local click = gui:check_click(rect)
@@ -253,13 +255,63 @@ function module.slider(gui, value, min, max, integer, show_number)
     return value
 end
 
+--- @param gui GUI
+--- @param value number
+--- @param min number
+--- @param max number
+--- @param integer boolean
+--- @return number
+function module.vertical_slider(gui, value, min, max, integer)
+    local rect = gui:malloc_rect(1, '+')
+    term.setCursorPos(rect.x, rect.y)
+
+    -- slider body
+    for i = rect.y, rect.y + rect.h - 1 do
+        term.setCursorPos(rect.x, i)
+        gui.theme:apply('slider.slider')
+        term.write('|')
+    end
+
+    -- value indicator
+    local percent = (value - min) / (max - min)
+    local indicator_top = math.floor((rect.h - 1) * percent)
+    term.setCursorPos(rect.x, rect.y + indicator_top)
+    gui.theme:draw_string('slider.indicator', string.char(9))
+    
+    -- input check
+    if gui:check_mouse_holding(rect) then
+        percent = (gui._hover.y - rect.y) / (rect.h - 1)
+        value = (max - min) * percent + min
+    elseif gui:check_click(rect) then
+        percent = (gui._last_event.args[3] - rect.y) / (rect.h - 1)
+        value = (max - min) * percent + min
+    elseif gui._last_event.name == 'mouse_scroll' and rect:point_in(gui._last_event.args[2], gui._last_event.args[3]) then
+        value = value + gui._last_event.args[1]
+    end
+
+    -- value check
+    if value > max then
+        value = max
+    elseif value < min then
+        value = min
+    end
+
+    if integer then
+        value = math.ceil(value)
+    end
+
+    return value
+end
+
+--- @param gui GUI
 --- @param selected number
 --- @param tabs string[]
 --- @param full boolean|nil
 --- @return number
 function module.tabs(gui, selected, tabs, full)
-    --- @module 'rkgui'
-    gui = gui
+    for i = 1, #tabs do
+        tabs[i] = tostring(tabs[i])
+    end
 
     local need_width = 0
     local widths = {}

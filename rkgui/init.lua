@@ -120,6 +120,15 @@ function GUI:slider(value, min, max, integer, show_number)
     return components.slider(self, value, min, max, integer, show_number)
 end
 
+--- @param value number
+--- @param min number
+--- @param max number
+--- @param integer boolean
+--- @return number
+function GUI:vertical_slider(value, min, max, integer)
+    return components.vertical_slider(self, value, min, max, integer)
+end
+
 --- @param selected number
 --- @param tabs string[]
 --- @param full boolean|nil

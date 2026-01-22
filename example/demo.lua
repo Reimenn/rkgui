@@ -14,7 +14,7 @@ local c_input_text = 'Hello World!'
 local c_input_number = 100
 local c_shortcut_counter = 0
 local selected_page = 1
-
+ 
 local gui = GUI.new()
 
 local pages = {
@@ -102,8 +102,8 @@ Switch the tabs at the top of the screen to explore more content!]])
                 end)
             end)
 
-            gui:row(6, function()
-                gui:col('50%', function()
+            gui:row(7, function()
+                gui:col('40%', function()
                     gui:space()
                     c_check = gui:checkbox("Checkbox", c_check)
                     gui:space()
@@ -111,7 +111,10 @@ Switch the tabs at the top of the screen to explore more content!]])
                     gui:space()
                     c_slider = gui:slider(c_slider, 20, 80, false, false)
                 end)
-                gui:col('+', function()
+                gui:space()
+                c_slider = gui:vertical_slider(c_slider, 20, 80, false)
+                gui:space()
+                gui:col('40%', function()
                     for i = 1, 3 do
                         gui:label("Line " .. i)
                         gui:progress_bar(i / 3, false)
