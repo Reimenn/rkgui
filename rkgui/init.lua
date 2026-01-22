@@ -137,7 +137,7 @@ function GUI:tabs(selected, tabs, full)
     return components.tabs(self, selected, tabs, full)
 end
 
---- @param space number | nil
+--- @param space number | string | nil
 --- @param char string | nil
 function GUI:space(space, char)
     if space == nil then
@@ -211,6 +211,28 @@ end
 --- @param view fun():(boolean|nil) Draw the UI in the function
 function GUI:reverse_col(width, view)
     self:_draw_in_layout(width, '+', 'bt', view)
+end
+
+--- @param input number|string
+--- @return number
+function GUI:convert_width(input)
+    local layout = self._layouts:peek()
+    local offset = 0
+    if layout.dir == 'lr' or layout.dir == 'rl' then
+        offset = layout.offset
+    end
+    return utils.parse_size(input, layout.rect.w, offset)
+end
+
+--- @param input number|string
+--- @return number
+function GUI:convert_height(input)
+    local layout = self._layouts:peek()
+    local offset = 0
+    if layout.dir == 'tb' or layout.dir == 'bt' then
+        offset = layout.offset
+    end
+    return utils.parse_size(input, layout.rect.h, offset)
 end
 
 --- @param width number|string|nil
