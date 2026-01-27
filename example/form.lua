@@ -15,26 +15,11 @@ local form_data = {
     email = 'john@example.com',
     age = 30,
     subscribe = true,
-    gender = 'male'
+    gender = 1
 }
 
 -- Gender options
 local gender_options = { 'Male', 'Female', 'Prefer not to say' }
-local gender_index = 1
-
--- Update gender index based on current value
-local function update_gender_index()
-    if form_data.gender == 'male' then
-        gender_index = 1
-    elseif form_data.gender == 'female' then
-        gender_index = 2
-    else
-        gender_index = 3
-    end
-end
-
--- Initialize gender index
-update_gender_index()
 
 -- Start the render loop
 app:start(function()
@@ -71,16 +56,12 @@ app:start(function()
     
     -- Gender selection using tabs
     app:label("Gender:")
-    gender_index = app:tabs(gender_index, gender_options)
-    
-    -- Update gender value based on selected tab
-    if gender_index == 1 then
-        form_data.gender = 'male'
-    elseif gender_index == 2 then
-        form_data.gender = 'female'
-    else
-        form_data.gender = 'prefer_not_to_say'
-    end
+    app.theme:temp({
+        ['tabs.selected.background'] = colors.lightGray,
+        ['tabs.selected.color'] = colors.black
+    }, function()
+        form_data.gender = app:tabs(form_data.gender, gender_options)
+    end)
     app:space()
     
     -- Subscribe checkbox
@@ -89,13 +70,9 @@ app:start(function()
     
     -- Submit button
     if app:button("Submit Form") then
-        local gender_display = form_data.gender
-        if gender_display == 'prefer_not_to_say' then
-            gender_display = 'Prefer not to say'
-        end
         local message = string.format(
             "Form submitted!\nName: %s\nEmail: %s\nAge: %d\nGender: %s\nSubscribe: %s",
-            form_data.name, form_data.email, form_data.age, gender_display, 
+            form_data.name, form_data.email, form_data.age, gender_options[form_data.gender], 
             form_data.subscribe and "Yes" or "No"
         )
         dialog.alert(message)
