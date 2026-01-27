@@ -179,7 +179,7 @@ end
 ---
 --- @param gui GUI
 --- @return string | nil
-function check_gui_char_input(gui)
+local function check_gui_char_input(gui)
     if gui._last_event.name ~= nil then
         local type = gui._last_event.name
         local value = gui._last_event.args[1]
@@ -194,7 +194,7 @@ end
 ---
 --- @param gui GUI
 --- @return number | nil
-function check_gui_key_pressed(gui)
+local function check_gui_key_pressed(gui)
     if gui._last_event.name ~= nil then
         local type = gui._last_event.name
         local value = gui._last_event.args[1]
@@ -209,7 +209,7 @@ end
 ---
 --- The created GUI does not register global shortcuts like Ctrl+C.
 --- @return GUI
-function create_gui()
+local function create_gui()
     return require('rkgui').new(true)
 end
 
@@ -493,10 +493,11 @@ end
 --- `extend_height` is used by callers to reserve extra vertical space
 --- (for example, for buttons under the message).
 ---
+--- @param gui GUI
 --- @param title string
 --- @param message string|nil
 --- @param extend_height number
-function draw_message(title, message, extend_height)
+local function draw_message(gui, title, message, extend_height)
     local _, term_h = term.getSize()
 
     if message then
@@ -523,7 +524,7 @@ end
 --- @param gui GUI
 --- @param buttons ({text:string, color:any} | string)[]
 --- @return number|nil click button index
-function draw_button(gui, buttons)
+local function draw_button(gui, buttons)
     local result
     gui:reverse_row(3, function()
         for i = 1, #buttons do
@@ -551,8 +552,8 @@ end
 --- @param message string|nil
 --- @param buttons ({text:string, color:any} | string)[]
 --- @return number|nil Index of the clicked button, or `nil` if none
-function show_dialog(title, message, buttons)
-    gui = create_gui()
+local function show_dialog(title, message, buttons)
+    local gui = create_gui()
     gui.theme:set('button.left_char', ' ')
     gui.theme:set('button.right_char', ' ')
     local click_button
@@ -561,7 +562,7 @@ function show_dialog(title, message, buttons)
         gui:row('+', function()
             gui:space('10%')
             gui:col('80%', function()
-                draw_message(title, message, 4)
+                draw_message(gui, title, message, 4)
                 gui:space()
                 click_button = draw_button(gui, buttons)
             end)
