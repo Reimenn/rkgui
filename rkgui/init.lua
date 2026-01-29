@@ -209,7 +209,7 @@ end
 ---@param height number | string
 ---@param dir 'lr'|'rl'|'tb'|'bt'
 ---@param view fun():(boolean|nil)
-function GUI:_draw_in_layout(width, height, dir, view)
+function GUI:custom_layout(width, height, dir, view)
     self._layouts:push(utils.Layout.new(
         self:malloc_rect(width, height),
         dir
@@ -227,14 +227,14 @@ end
 --- @param height number | string
 --- @param view fun():(boolean|nil)
 function GUI:row(height, view)
-    self:_draw_in_layout('+', height, 'lr', view)
+    self:custom_layout('+', height, 'lr', view)
 end
 
 --- Like `row()`, but draw right-to-left.
 --- @param height number | string
 --- @param view fun():(boolean|nil)
 function GUI:reverse_row(height, view)
-    self:_draw_in_layout('+', height, 'rl', view)
+    self:custom_layout('+', height, 'rl', view)
 end
 
 --- Draw a column (top-to-bottom layout) within the current layout.
@@ -246,14 +246,14 @@ end
 --- @param width number | string
 --- @param view fun():(boolean|nil)
 function GUI:col(width, view)
-    self:_draw_in_layout(width, '+', 'tb', view)
+    self:custom_layout(width, '+', 'tb', view)
 end
 
 --- Like `col()`, but draw bottom-to-top.
 --- @param width number | string
 --- @param view fun():(boolean|nil)
 function GUI:reverse_col(width, view)
-    self:_draw_in_layout(width, '+', 'bt', view)
+    self:custom_layout(width, '+', 'bt', view)
 end
 
 --- Convert a width specification into an absolute width in columns.

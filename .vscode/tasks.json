@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CraftOS-PC 0",
+      "type": "shell",
+      "command": "D:\\CraftOS-PC\\CraftOS-PC_console.exe",
+      "group": "build",
+    },
+    {
+      "label": "CraftOS-PC 1",
+      "type": "shell",
+      "command": "D:\\CraftOS-PC\\CraftOS-PC_console.exe -i 1 --mount-ro '/=C:\\Users\\1\\AppData\\Roaming\\CraftOS-PC\\computer\\0'",
+      "group": "build"
+    },
+    {
+      "label": "CraftOS-PC Help",
+      "type": "shell",
+      "command": "D:\\CraftOS-PC\\CraftOS-PC_console.exe -h",
+      "group": "build"
+    }
+  ]
+}
