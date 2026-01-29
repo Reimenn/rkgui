@@ -66,7 +66,7 @@ function IndustryComponents:breaker(is_break, text)
 
         -- Border
         self.gui.buffer:setCursorPos(center_x - 1, center_y - 1)
-        self.gui:apply_style('industry.breaker.border')
+        self.gui:apply_style_to_buffer('industry.breaker.border')
         self.gui.buffer:drawBorder(7, rect.h - (text and 1 or 0))
 
         -- Click handling (toggle)
@@ -132,7 +132,7 @@ function IndustryComponents:capacity_bar(percent, width, height, text)
     local rect = self.gui:malloc_rect(math.max(width, text and #text or 0), height)
     local text_h = text and 1 or 0
     local bar_h = height - 2 - text_h
-    self.gui:apply_style('industry.capacity_bar.border')
+    self.gui:apply_style_to_buffer('industry.capacity_bar.border')
     self.gui.buffer:setCursorPos(rect.x, rect.y)
     self.gui.buffer:drawBorder(rect.w, rect.h - text_h)
     self.gui.buffer:drawFilledBox(rect.x + 1, rect.y + 1, rect.x + rect.w - 2, rect.y + height - 2 - text_h)

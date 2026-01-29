@@ -361,6 +361,9 @@ function GUI:debug(msg, level)
         msg = msg,
         level = level
     })
+    while #self._debug_buffer > 300 do
+        table.remove(self._debug_buffer, 0)
+    end
 end
 
 --- Clear all debug messages.
@@ -392,22 +395,42 @@ function GUI:remove_shortcut(name)
     end
 end
 
-function GUI:apply_style(style)
+--- Apply a style from the current theme.
+---
+--- Sets the buffer's text and background colors based on the provided style.
+--- @param style string Style name
+function GUI:apply_style_to_buffer(style)
     local color = self.theme:get(style .. '.color')
     local background = self.theme:get(style .. '.background')
     self.buffer:setColor(color, background)
 end
 
+--- Draw a string using a specific style from the theme.
+---
+--- Applies the style first, then writes the text to the buffer.
+--- @param style string Style name
+--- @param text string Text to draw
 function GUI:draw_string_by_style(style, text)
-    self:apply_style(style)
+    self:apply_style_to_buffer(style)
     self.buffer:write(text)
 end
 
+--- Draw a repeated character using a specific style from the theme.
+---
+--- Applies the style first, then writes the repeated character to the buffer.
+--- The character is obtained from the style's 'char' property.
+--- @param style string Style name
+--- @param count number|nil Number of times to repeat the character (defaults to 1)
 function GUI:draw_char_by_style(style, count)
-    self:apply_style(style)
+    self:apply_style_to_buffer(style)
     self.buffer:write(string.rep(self.theme:get(style .. '.char'), count and count or 1))
 end
 
+--- @private
+--- Draw debug log messages on the bottom line of the screen.
+---
+--- Each log message is displayed with a background color based on its level.
+--- Clicking on a log message will remove it from the buffer.
 function GUI:_draw_log_line()
     if #(self._debug_buffer) <= 0 then
         return
@@ -429,14 +452,19 @@ function GUI:_draw_log_line()
         end
 
         term.setBackgroundColor(color[self._debug_buffer[i].level])
-        self.buffer:write(msg)
+        term.write(msg)
         term.setBackgroundColor(colors.black)
-        self.buffer:write(" ")
+        term.write(" ")
     end
 
     term.setCursorPos(ox, oy)
 end
 
+--- @private
+--- Draw a full-screen debug log view.
+---
+--- This is displayed when `gui.show_logs` is enabled, showing all debug messages
+--- with their respective background colors based on their levels.
 function GUI:_draw_log_view()
     term.setBackgroundColor(self.theme:get('background'))
     term.clear()
@@ -447,13 +475,27 @@ function GUI:_draw_log_view()
         count = count + 1
         local y = th - count + 1
         if y > 0 then
+            local msg = tostring(self._debug_buffer[i].msg)
             term.setCursorPos(1, y)
             term.setBackgroundColor(color[self._debug_buffer[i].level])
-            self.buffer:write(self._debug_buffer[i].msg)
+            term.write(msg)
+
+            local rect = utils.Rect.new()
+            rect.x, rect.y = 1, y
+            rect.w, rect.h = #msg, 1
+            if self:check_click(rect) then
+                table.remove(self._debug_buffer, i)
+                break
+            end
         end
     end
 end
 
+--- @private
+--- Check if any registered keyboard shortcuts are being activated.
+---
+--- When all keys in a shortcut's key combination are held in the correct order,
+--- the associated action function is executed.
 function GUI:_check_keyboard_shortcuts()
     for i = 1, #(self._keyboard_shortcuts) do
         local targetKeys = self._keyboard_shortcuts[i].keys
@@ -530,18 +572,19 @@ function GUI:start(view)
         rect.w, rect.h = term.getSize()
         self._layouts:push(utils.Layout.new(rect, 'tb'))
         self.buffer:resize(rect.w, rect.h)
-        self:apply_style('')
+        self:apply_style_to_buffer('')
         self.buffer:clear()
 
         end_loop = view() or end_loop
+        self.buffer:flush(term, 1, 1)
+        
         if self.show_logs then
             self:_draw_log_view()
         else
             self:_draw_log_line()
         end
-        self.buffer:flush(term, 1, 1)
-        end_loop = self:_pull_event() or end_loop
 
+        end_loop = self:_pull_event() or end_loop
         self._layouts:pop()
     end
 

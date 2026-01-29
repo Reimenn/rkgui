@@ -23,13 +23,13 @@ function module.button(gui, text, height)
 
     local click = gui:check_click(rect)
     if click then
-        gui:apply_style('button.click')
+        gui:apply_style_to_buffer('button.click')
         gui.buffer:drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
     elseif gui:check_mouse_holding(rect) then
-        gui:apply_style('button.holding')
+        gui:apply_style_to_buffer('button.holding')
         gui.buffer:drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
     else
-        gui:apply_style('button')
+        gui:apply_style_to_buffer('button')
         gui.buffer:drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
     end
 
@@ -297,7 +297,7 @@ function module.vertical_slider(gui, value, min, max, integer)
     -- Slider track
     for i = rect.y, rect.y + rect.h - 1 do
         gui.buffer:setCursorPos(rect.x, i)
-        gui:apply_style('slider.slider')
+        gui:apply_style_to_buffer('slider.slider')
         gui.buffer:write('|')
     end
 
