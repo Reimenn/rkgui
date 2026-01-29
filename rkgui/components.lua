@@ -23,21 +23,21 @@ function module.button(gui, text, height)
 
     local click = gui:check_click(rect)
     if click then
-        gui.theme:apply('button.click')
-        paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
+        gui:apply_style('button.click')
+        gui.buffer:drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
     elseif gui:check_mouse_holding(rect) then
-        gui.theme:apply('button.holding')
-        paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
+        gui:apply_style('button.holding') 
+        gui.buffer:drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
     else
-        gui.theme:apply('button')
-        paintutils.drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
+        gui:apply_style('button')
+        gui.buffer:drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
     end
 
     local draw_text = text_tools.center(text, rect.w - decoration_char_length)
-    term.setCursorPos(rect.x, rect.y + math.floor(rect.h / 2))
-    term.write(gui.theme:get('button.left_char'))
-    term.write(draw_text)
-    term.write(gui.theme:get('button.right_char'))
+    gui.buffer:setCursorPos(rect.x, rect.y + math.floor(rect.h / 2))
+    gui.buffer:write(gui.theme:get('button.left_char'))
+    gui.buffer:write(draw_text)
+    gui.buffer:write(gui.theme:get('button.right_char'))
     return click
 end
 
@@ -59,8 +59,8 @@ function module.label(gui, text, align)
         text = text_tools.left(text, rect.w)
     end
 
-    term.setCursorPos(rect.x, rect.y)
-    gui.theme:draw_string('label', text)
+    gui.buffer:setCursorPos(rect.x, rect.y)
+    gui:draw_string_by_style('label', text)
 end
 
 --- Draw a title (3 lines tall): one line of text and a separator line below.
@@ -82,13 +82,13 @@ function module.title(gui, text, align)
         text = text_tools.left(' ' .. text, rect.w)
     end
 
-    term.setCursorPos(rect.x, rect.y + 1)
-    gui.theme:draw_string('title', text)
+    gui.buffer:setCursorPos(rect.x, rect.y + 1)
+    gui:draw_string_by_style('title', text)
 
-    term.setCursorPos(rect.x, rect.y + 2)
-    term.setTextColor(gui.theme:get('title.line'))
-    term.setBackgroundColor(gui.theme:get('background'))
-    term.write(string.rep(string.char(131), rect.w))
+    gui.buffer:setCursorPos(rect.x, rect.y + 2)
+    gui.buffer:setTextColor(gui.theme:get('title.line'))
+    gui.buffer:setBackgroundColor(gui.theme:get('background'))
+    gui.buffer:write(string.rep(string.char(131), rect.w))
 end
 
 --- Draw a checkbox and return the updated checked state.
@@ -108,13 +108,13 @@ function module.checkbox(gui, text, checked)
         checked = not checked
     end
 
-    term.setCursorPos(rect.x, rect.y)
+    gui.buffer:setCursorPos(rect.x, rect.y)
     if checked then
-        gui.theme:draw_char('checkbox.checked')
+        gui:draw_char_by_style('checkbox.checked')
     else
-        gui.theme:draw_char('checkbox.unchecked')
+        gui:draw_char_by_style('checkbox.unchecked')
     end
-    gui.theme:draw_string('checkbox', ' ' .. text)
+    gui:draw_string_by_style('checkbox', ' ' .. text)
     return checked
 end
 
@@ -134,20 +134,20 @@ function module.toggle(gui, text, checked)
         checked = not checked
     end
 
-    term.setCursorPos(rect.x, rect.y)
+    gui.buffer:setCursorPos(rect.x, rect.y)
     if gui:check_mouse_holding(rect) then
-        gui.theme:draw_char('toggle.track.on')
-        gui.theme:draw_char('toggle.thumb')
-        gui.theme:draw_char('toggle.track.off')
+        gui:draw_char_by_style('toggle.track.on')
+        gui:draw_char_by_style('toggle.thumb')
+        gui:draw_char_by_style('toggle.track.off')
     elseif checked then
-        gui.theme:draw_char('toggle.track.on', 2)
-        gui.theme:draw_char('toggle.thumb')
+        gui:draw_char_by_style('toggle.track.on', 2)
+        gui:draw_char_by_style('toggle.thumb')
     else
-        gui.theme:draw_char('toggle.thumb')
-        gui.theme:draw_char('toggle.track.off', 2)
+        gui:draw_char_by_style('toggle.thumb')
+        gui:draw_char_by_style('toggle.track.off', 2)
     end
 
-    gui.theme:draw_string('toggle', ' ' .. text)
+    gui:draw_string_by_style('toggle', ' ' .. text)
 
     return checked
 end
@@ -173,35 +173,35 @@ function module.progress_bar(gui, percent, show_percent)
     -- Percent label prefix
     if show_percent then
         local title = text_tools.right(string.format('%d', percent * 100) .. '% ', 5)
-        term.setCursorPos(rect.x, rect.y)
-        gui.theme:draw_string('progress', title)
+        gui.buffer:setCursorPos(rect.x, rect.y)
+        gui:draw_string_by_style('progress', title)
         rect.x = rect.x + 5
         rect.w = rect.w - 5
     end
 
     -- Background
 
-    term.setCursorPos(rect.x, rect.y)
-    gui.theme:draw_string('progress.bar', string.rep(' ', rect.w))
+    gui.buffer:setCursorPos(rect.x, rect.y)
+    gui:draw_string_by_style('progress.bar', string.rep(' ', rect.w))
 
     -- Filled part
     if percent > 0 then
-        term.setCursorPos(rect.x, rect.y)
-        term.setBackgroundColor(gui.theme:get('progress.bar.color'))
+        gui.buffer:setCursorPos(rect.x, rect.y)
+        gui.buffer:setBackgroundColor(gui.theme:get('progress.bar.color'))
         local width = (rect.w) * percent
         local width_floor = math.floor(width)
-        term.write(string.rep(' ', width_floor))
+        gui.buffer:write(string.rep(' ', width_floor))
 
         -- Remaining fractional part (use 1/6-block characters)
         local remain = width - width_floor
         if remain > 0 then
             local stage = math.floor(remain * 6) + 1
-            term.setBackgroundColor(gui.theme:get('progress.bar.background'))
-            term.setTextColor(gui.theme:get('progress.bar.color'))
+            gui.buffer:setBackgroundColor(gui.theme:get('progress.bar.background'))
+            gui.buffer:setTextColor(gui.theme:get('progress.bar.color'))
             if stage == 6 then
-                term.setBackgroundColor(gui.theme:get('progress.bar.color'))
+                gui.buffer:setBackgroundColor(gui.theme:get('progress.bar.color'))
             end
-            term.write(progress_bar_stage_table[stage])
+            gui.buffer:write(progress_bar_stage_table[stage])
         end
     end
 end
@@ -219,7 +219,7 @@ end
 --- @return number
 function module.slider(gui, value, min, max, integer, show_number)
     local rect = gui:malloc_rect(20, 1)
-    term.setCursorPos(rect.x, rect.y)
+    gui.buffer:setCursorPos(rect.x, rect.y)
 
     -- Numeric prefix (optional)
     if show_number then
@@ -231,22 +231,22 @@ function module.slider(gui, value, min, max, integer, show_number)
             local max_number_len = math.max(#(max .. ''), 4) + 2
             prefix = text_tools.right(string.format('%.1f', value), max_number_len) .. ' '
         end
-        gui.theme:draw_string('slider', prefix)
+        gui:draw_string_by_style('slider', prefix)
         rect.x = rect.x + #prefix
         rect.w = rect.w - #prefix
     end
 
     -- Slider track
-    gui.theme:draw_string('slider.endpoint', '[')
-    gui.theme:draw_char('slider.slider', rect.w - 2)
-    gui.theme:draw_string('slider.endpoint', ']')
+    gui:draw_string_by_style('slider.endpoint', '[')
+    gui:draw_char_by_style('slider.slider', rect.w - 2)
+    gui:draw_string_by_style('slider.endpoint', ']')
 
 
     -- Value indicator (thumb)
     local percent = (value - min) / (max - min)
     local indicator_left = (rect.w - 3) * percent
-    term.setCursorPos(rect.x + indicator_left + 1, rect.y)
-    gui.theme:draw_char('slider.indicator')
+    gui.buffer:setCursorPos(rect.x + indicator_left + 1, rect.y)
+    gui:draw_char_by_style('slider.indicator')
 
     -- Input handling area (excluding endpoints)
     local slider_rect = utils.Rect.new()
@@ -262,7 +262,7 @@ function module.slider(gui, value, min, max, integer, show_number)
         percent = (gui._last_event.args[2] - slider_rect.x) / (slider_rect.w - 1)
         value = (max - min) * percent + min
     elseif gui._last_event.name == 'mouse_scroll' and
-            slider_rect:point_in(gui._last_event.args[2], gui._last_event.args[3])
+        slider_rect:point_in(gui._last_event.args[2], gui._last_event.args[3])
     then
         value = value - gui._last_event.args[1]
     end
@@ -292,21 +292,21 @@ end
 --- @return number
 function module.vertical_slider(gui, value, min, max, integer)
     local rect = gui:malloc_rect(1, '+')
-    term.setCursorPos(rect.x, rect.y)
+    gui.buffer:setCursorPos(rect.x, rect.y)
 
     -- Slider track
     for i = rect.y, rect.y + rect.h - 1 do
-        term.setCursorPos(rect.x, i)
-        gui.theme:apply('slider.slider')
-        term.write('|')
+        gui.buffer:setCursorPos(rect.x, i)
+        gui:apply_style('slider.slider')
+        gui.buffer:write('|')
     end
 
     -- Value indicator (thumb)
     local percent = (value - min) / (max - min)
     local indicator_top = math.floor((rect.h - 1) * percent)
-    term.setCursorPos(rect.x, rect.y + indicator_top)
-    gui.theme:draw_string('slider.indicator', string.char(9))
-    
+    gui.buffer:setCursorPos(rect.x, rect.y + indicator_top)
+    gui:draw_string_by_style('slider.indicator', string.char(9))
+
     -- Input handling
     if gui:check_mouse_holding(rect) then
         percent = (gui._hover.y - rect.y) / (rect.h - 1)
@@ -386,15 +386,15 @@ function module.tabs(gui, selected, tabs, full)
     end
 
     -- Draw
-    term.setCursorPos(rect.x, rect.y)
+    gui.buffer:setCursorPos(rect.x, rect.y)
     for i = 1, #tabs do
         local left_space = 1
         local right_space = widths[i] - #(tabs[i]) - 1
         local text = string.rep(' ', left_space) .. tabs[i] .. string.rep(' ', right_space)
         if selected == i then
-            gui.theme:draw_string('tabs.selected', text)
+            gui:draw_string_by_style('tabs.selected', text)
         else
-            gui.theme:draw_string('tabs', text)
+            gui:draw_string_by_style('tabs', text)
         end
     end
 

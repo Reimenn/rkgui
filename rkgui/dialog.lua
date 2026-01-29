@@ -142,23 +142,23 @@ function InputData:draw(gui)
     local rect = gui:malloc_rect(self.width, 2)
 
     -- text
-    term.setCursorPos(rect.x, rect.y)
+    gui.buffer:setCursorPos(rect.x, rect.y)
     if self.scroll > 1 then
-        term.write(string.char(17))
+        gui.buffer:write(string.char(17))
     else
-        term.write(" ")
+        gui.buffer:write(" ")
     end
-    term.write(self.text:sub(self.scroll, self.scroll + self.text_width - 1))
+    gui.buffer:write(self.text:sub(self.scroll, self.scroll + self.text_width - 1))
     if self.scroll + self.text_width < #self.text + 1 then
-        term.write(string.char(16))
+        gui.buffer:write(string.char(16))
     else
-        term.write(" ")
+        gui.buffer:write(" ")
     end
 
     -- underline
-    term.setCursorPos(rect.x + 1, rect.y + 1)
-    term.setTextColor(gui.theme:get('ghost_color'))
-    term.write(string.rep(string.char(131), self.text_width))
+    gui.buffer:setCursorPos(rect.x + 1, rect.y + 1)
+    gui.buffer:setTextColor(gui.theme:get('ghost_color'))
+    gui.buffer:write(string.rep(string.char(131), self.text_width))
 
     -- cursor
     self.term_cursor.x = rect.x + 1 + self.cursor - self.scroll
@@ -169,10 +169,12 @@ end
 ---
 --- Must be called **after** `draw()` in the same frame, otherwise the cursor
 --- position will be incorrect.
-function InputData:draw_cursor()
-    term.setCursorPos(self.term_cursor.x, self.term_cursor.y)
-    term.setTextColor(colors.red)
-    term.setCursorBlink(true)
+--- 
+--- @param gui GUI
+function InputData:draw_cursor(gui)
+    gui.buffer:setCursorPos(self.term_cursor.x, self.term_cursor.y)
+    gui.buffer:setTextColor(colors.red)
+    gui.buffer:setCursorBlink(true)
 end
 
 --- Read the last char input from a GUI event, if any.
@@ -226,7 +228,7 @@ function module.get_string(value, title)
     gui.theme:set('button.right_char', ' ')
     local source = value
 
-    local term_w, term_h = term.getSize()
+    local term_w, term_h = gui.buffer:getSize()
     local left = math.max(2, math.floor(term_w * 0.2))
     local top = math.floor(term_h / 2)
     local data = InputData.new(value, term_w - left - left)
@@ -234,7 +236,7 @@ function module.get_string(value, title)
     local click_ok = false
     gui:start(function()
         -- update term size value
-        term_w, term_h = term.getSize()
+        term_w, term_h = gui.buffer:getSize()
         left = math.max(2, math.floor(term_w * 0.1))
         top = math.floor(term_h / 2)
         data:set_width(term_w - left - left)
@@ -290,12 +292,10 @@ function module.get_string(value, title)
         end)
 
         -- draw cursor
-        data:draw_cursor()
-
+        data:draw_cursor(gui)
         return rt
     end)
 
-    term.setCursorBlink(false)
     if click_ok then
         return data.text
     else
@@ -498,7 +498,7 @@ end
 --- @param message string|nil
 --- @param extend_height number
 local function draw_message(gui, title, message, extend_height)
-    local _, term_h = term.getSize()
+    local _, term_h = gui.buffer:getSize()
 
     if message then
         local message_h = #text_tool.wrap(message)

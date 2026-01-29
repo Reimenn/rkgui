@@ -1,6 +1,7 @@
 local utils = require 'rkgui.utils'
 local components = require 'rkgui.components'
 local text_tools = require 'rkgui.text'
+local screen_buffer = require 'rkgui.screen_buffer'
 
 --- RKGUI main API.
 ---
@@ -13,6 +14,7 @@ local text_tools = require 'rkgui.text'
 ---@field theme Theme
 ---@field last_rect Rect
 ---@field show_logs boolean
+---@field buffer ScreenBuffer
 ---@field _layouts Stack<Layout>
 ---@field _hover {x:number,y:number}
 ---@field _last_event {name:string,args:any[]}
@@ -34,9 +36,10 @@ GUI.__index = GUI
 function GUI.new(is_sub_view)
     --- @type GUI
     local inst = setmetatable({
-        theme = require 'rkgui.theme.default'(),
+        theme = require 'rkgui.theme.default' (),
         last_rect = nil,
         show_logs = false,
+        buffer = screen_buffer.ScreenBuffer.new(0, 0),
         _layouts = utils.Stack.new(),
         _hover = nil,
         _last_event = {},
@@ -75,7 +78,7 @@ end
 --- @return boolean
 function GUI:check_click(rect)
     return (self._last_event.name == 'mouse_up' and rect:point_in(self._last_event.args[2], self._last_event.args[3]))
-            or (self._last_event.name == 'monitor_touch' and rect:point_in(self._last_event.args[2], self._last_event.args[3]))
+        or (self._last_event.name == 'monitor_touch' and rect:point_in(self._last_event.args[2], self._last_event.args[3]))
 end
 
 --- Draw a button and return whether it was clicked.
@@ -189,8 +192,8 @@ function GUI:space(space, char)
 
     if char then
         for i = rect.y, rect.y + rect.h - 1 do
-            term.setCursorPos(rect.x, i)
-            term.write(string.rep(char, rect.w))
+            self.buffer:setCursorPos(rect.x, i)
+            self.buffer:write(string.rep(char, rect.w))
         end
     end
 end
@@ -208,8 +211,8 @@ end
 ---@param view fun():(boolean|nil)
 function GUI:_draw_in_layout(width, height, dir, view)
     self._layouts:push(utils.Layout.new(
-            self:malloc_rect(width, height),
-            dir
+        self:malloc_rect(width, height),
+        dir
     ))
     view()
     self._layouts:pop()
@@ -389,6 +392,22 @@ function GUI:remove_shortcut(name)
     end
 end
 
+function GUI:apply_style(style)
+    local color = self.theme:get(style .. '.color')
+    local background = self.theme:get(style .. '.background')
+    self.buffer:setColor(color, background)
+end
+
+function GUI:draw_string_by_style(style, text)
+    self:apply_style(style)
+    self.buffer:write(text)
+end
+
+function GUI:draw_char_by_style(style, count)
+    self:apply_style(style)
+    self.buffer:write(string.rep(self.theme:get(style .. '.char'), count and count or 1))
+end
+
 function GUI:_draw_log_line()
     if #(self._debug_buffer) <= 0 then
         return
@@ -410,9 +429,9 @@ function GUI:_draw_log_line()
         end
 
         term.setBackgroundColor(color[self._debug_buffer[i].level])
-        term.write(msg)
+        self.buffer:write(msg)
         term.setBackgroundColor(colors.black)
-        term.write(" ")
+        self.buffer:write(" ")
     end
 
     term.setCursorPos(ox, oy)
@@ -430,7 +449,7 @@ function GUI:_draw_log_view()
         if y > 0 then
             term.setCursorPos(1, y)
             term.setBackgroundColor(color[self._debug_buffer[i].level])
-            term.write(self._debug_buffer[i].msg)
+            self.buffer:write(self._debug_buffer[i].msg)
         end
     end
 end
@@ -465,11 +484,7 @@ function GUI:_pull_event()
         args = { param, x, y }
     }
 
-    if event == 'terminate' then
-        local x, y = term.getSize()
-        term.setCursorPos(1, y)
-        return true
-    elseif event == 'mouse_click' or event == 'mouse_drag' then
+    if event == 'mouse_click' or event == 'mouse_drag' then
         self._hover = { x = x, y = y }
     elseif event == 'mouse_up' then
         self._hover = nil
@@ -514,9 +529,9 @@ function GUI:start(view)
         rect.x, rect.y = 1, 1
         rect.w, rect.h = term.getSize()
         self._layouts:push(utils.Layout.new(rect, 'tb'))
-
-        self.theme:apply('')
-        term.clear()
+        self.buffer:resize(rect.w, rect.h)
+        self:apply_style('')
+        self.buffer:clear()
 
         end_loop = view() or end_loop
         if self.show_logs then
@@ -524,6 +539,7 @@ function GUI:start(view)
         else
             self:_draw_log_line()
         end
+        self.buffer:flush(term, 1, 1)
         end_loop = self:_pull_event() or end_loop
 
         self._layouts:pop()

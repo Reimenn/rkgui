@@ -42,29 +42,6 @@ function Theme:get(key)
 end
 
 --- @param path string
-function Theme:apply(path)
-    term.setTextColor(self:get(path .. ".color"))
-    term.setBackgroundColor(self:get(path .. ".background"))
-end
-
---- @param path string
-function Theme:draw_char(path, count)
-    term.setTextColor(self:get(path .. ".color"))
-    term.setBackgroundColor(self:get(path .. ".background"))
-    if count == nil then
-        count = 1
-    end
-    term.write(string.rep(self:get(path .. ".char"), count))
-end
-
---- @param path string
---- @param string string
-function Theme:draw_string(path, string)
-    self:apply(path)
-    term.write(string)
-end
-
---- @param path string
 function Theme:set(path, value)
     path = text.split(path, ".")
     local name = path[#path]

@@ -65,9 +65,9 @@ function IndustryComponents:breaker(is_break, text)
         local center_y = rect.y + 1
 
         -- Border
-        term.setCursorPos(center_x - 1, center_y - 1)
-        self.gui.theme:apply('industry.breaker.border')
-        utils.draw_border(7, rect.h - (text and 1 or 0))
+        self.gui.buffer:setCursorPos(center_x - 1, center_y - 1)
+        self.gui:apply_style('industry.breaker.border')
+        self.gui.buffer:drawBorder(7, rect.h - (text and 1 or 0))
 
         -- Click handling (toggle)
         local click_rect = utils.Rect.new()
@@ -78,38 +78,38 @@ function IndustryComponents:breaker(is_break, text)
         end
 
         -- Track
-        term.setBackgroundColor(self.gui.theme:get('industry.breaker.track'))
-        term.setCursorPos(center_x + 2, center_y)
-        term.write(' ')
-        term.setCursorPos(center_x + 2, center_y + 1)
-        term.write(' ')
-        term.setCursorPos(center_x + 2, center_y + 2)
-        term.write(' ')
+        self.gui.buffer:setBackgroundColor(self.gui.theme:get('industry.breaker.track'))
+        self.gui.buffer:setCursorPos(center_x + 2, center_y)
+        self.gui.buffer:write(' ')
+        self.gui.buffer:setCursorPos(center_x + 2, center_y + 1)
+        self.gui.buffer:write(' ')
+        self.gui.buffer:setCursorPos(center_x + 2, center_y + 2)
+        self.gui.buffer:write(' ')
 
         -- Handle / indicator
-        term.setBackgroundColor(self.gui.theme:get('industry.breaker.handler'))
+        self.gui.buffer:setBackgroundColor(self.gui.theme:get('industry.breaker.handler'))
         if self.gui:check_mouse_holding(click_rect) then
-            term.setCursorPos(center_x, center_y + 1)
-            term.write('     ')
+            self.gui.buffer:setCursorPos(center_x, center_y + 1)
+            self.gui.buffer:write('     ')
         elseif is_break then
-            term.setCursorPos(center_x, center_y + 2)
-            term.write('     ')
-            term.setBackgroundColor(self.gui.theme:get('industry.breaker.background'))
-            term.setTextColor(self.gui.theme:get('industry.breaker.open_color'))
-            term.setCursorPos(center_x + 1, center_y + 1)
-            term.write(string.char(7))
+            self.gui.buffer:setCursorPos(center_x, center_y + 2)
+            self.gui.buffer:write('     ')
+            self.gui.buffer:setBackgroundColor(self.gui.theme:get('industry.breaker.background'))
+            self.gui.buffer:setTextColor(self.gui.theme:get('industry.breaker.open_color'))
+            self.gui.buffer:setCursorPos(center_x + 1, center_y + 1)
+            self.gui.buffer:write(string.char(7))
         else
-            term.setCursorPos(center_x, center_y)
-            term.write('     ')
-            term.setBackgroundColor(self.gui.theme:get('industry.breaker.background'))
-            term.setTextColor(self.gui.theme:get('industry.breaker.close_color'))
-            term.setCursorPos(center_x, center_y + 1)
-            term.write(string.char(7))
+            self.gui.buffer:setCursorPos(center_x, center_y)
+            self.gui.buffer:write('     ')
+            self.gui.buffer:setBackgroundColor(self.gui.theme:get('industry.breaker.background'))
+            self.gui.buffer:setTextColor(self.gui.theme:get('industry.breaker.close_color'))
+            self.gui.buffer:setCursorPos(center_x, center_y + 1)
+            self.gui.buffer:write(string.char(7))
         end
 
         if text then
-            term.setCursorPos(rect.x, rect.y + rect.h - 1)
-            self.gui.theme:draw_string('industry.breaker', text_utils.center(text, rect.w))
+            self.gui.buffer:setCursorPos(rect.x, rect.y + rect.h - 1)
+            self.gui:draw_string_by_style('industry.breaker', text_utils.center(text, rect.w))
         end
     end
 
@@ -132,30 +132,29 @@ function IndustryComponents:capacity_bar(percent, width, height, text)
     local rect = self.gui:malloc_rect(math.max(width, text and #text or 0), height)
     local text_h = text and 1 or 0
     local bar_h = height - 2 - text_h
-    self.gui.theme:apply('industry.capacity_bar.border')
-    term.setCursorPos(rect.x, rect.y)
-    utils.draw_border(rect.w, rect.h - text_h)
-    paintutils.drawFilledBox(rect.x + 1, rect.y + 1, rect.x + rect.w - 2, rect.y + height - 2 - text_h,
-            self.gui.theme:get('industry.capacity_bar.background'))
+    self.gui:apply_style('industry.capacity_bar.border')
+    self.gui.buffer:setCursorPos(rect.x, rect.y)
+    self.gui.buffer:drawBorder(rect.w, rect.h - text_h)
+    self.gui.buffer:drawFilledBox(rect.x + 1, rect.y + 1, rect.x + rect.w - 2, rect.y + height - 2 - text_h)
     local capacity_h = bar_h * percent
 
     for i = 1, capacity_h do
-        term.setBackgroundColor(self.gui.theme:get('industry.capacity_bar.color'))
-        term.setCursorPos(rect.x + 1, rect.y + rect.h - text_h - i - 1)
-        term.write(string.rep(' ', rect.w - 2))
+        self.gui.buffer:setBackgroundColor(self.gui.theme:get('industry.capacity_bar.color'))
+        self.gui.buffer:setCursorPos(rect.x + 1, rect.y + rect.h - text_h - i - 1)
+        self.gui.buffer:write(string.rep(' ', rect.w - 2))
     end
 
     local extend_pixel = math.floor((capacity_h % 1) * 3)
     if extend_pixel > 0 then
-        utils.set_term_color(self.gui.theme:get('industry.capacity_bar.background'), self.gui.theme:get('industry.capacity_bar.color'))
-        term.setCursorPos(rect.x + 1, rect.y + rect.h - math.floor(capacity_h) - 2 - text_h)
+        self.gui.buffer:setColor(self.gui.theme:get('industry.capacity_bar.background'), self.gui.theme:get('industry.capacity_bar.color'))
+        self.gui.buffer:setCursorPos(rect.x + 1, rect.y + rect.h - math.floor(capacity_h) - 2 - text_h)
         local char = extend_pixel == 1 and 143 or 131
-        term.write(string.rep(string.char(char), rect.w - 2))
+        self.gui.buffer:write(string.rep(string.char(char), rect.w - 2))
     end
 
     if text then
-        term.setCursorPos(rect.x, rect.y + rect.h - 1)
-        self.gui.theme:draw_string('industry.capacity_bar', text_utils.center(text, rect.w))
+        self.gui.buffer:setCursorPos(rect.x, rect.y + rect.h - 1)
+        self.gui:draw_string_by_style('industry.capacity_bar', text_utils.center(text, rect.w))
     end
 end
 
