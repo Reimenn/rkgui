@@ -9,6 +9,7 @@ return function()
         submit_color = colors.green,
         ghost_color = colors.gray,
         action_color = colors.gray,
+        cursor_color = colors.red,
         button = {
             background = '#action_color',
             holding = {

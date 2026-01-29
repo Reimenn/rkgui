@@ -173,7 +173,7 @@ end
 --- @param gui GUI
 function InputData:draw_cursor(gui)
     gui.buffer:setCursorPos(self.term_cursor.x, self.term_cursor.y)
-    gui.buffer:setTextColor(colors.red)
+    gui.buffer:setCursorColor(gui.theme:get('cursor_color'))
     gui.buffer:setCursorBlink(true)
 end
 

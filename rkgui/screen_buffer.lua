@@ -5,6 +5,7 @@
 --- @field cursor_x number
 --- @field cursor_y number
 --- @field cursor_blink boolean
+--- @field cursor_color number
 --- @field _fg number
 --- @field _bg number
 --- @field _fg_blit string
@@ -23,6 +24,7 @@ function ScreenBuffer.new(w, h)
       cursor_x = 1,
       cursor_y = 1,
       cursor_blink = false,
+      cursor_color = term.getTextColor(),
       _fg = term.getTextColor(),
       _bg = term.getBackgroundColor(),
       _fg_blit = colors.toBlit(term.getTextColor()),
@@ -48,6 +50,34 @@ end
 
 function ScreenBuffer:getBackgroundColor()
    return self._bg
+end
+
+function ScreenBuffer:setColor(fg, bg)
+   self:setTextColor(fg)
+   self:setBackgroundColor(bg)
+end
+
+function ScreenBuffer:setCursorColor(color)
+   self.cursor_color = color
+end
+
+function ScreenBuffer:getCursorColor()
+   return self.cursor_color
+end
+
+--- @param x number
+--- @param y number
+function ScreenBuffer:setCursorPos(x, y)
+   self.cursor_x = x
+   self.cursor_y = y
+end
+
+function ScreenBuffer:getCursorPos()
+   return self.cursor_x, self.cursor_y
+end
+
+function ScreenBuffer:setCursorBlink(blink)
+   self.cursor_blink = blink
 end
 
 function ScreenBuffer:getSize()
@@ -80,21 +110,10 @@ function ScreenBuffer:resize(w, h)
       end
       if #line.char < self.w then
          line.char = line.char .. string.rep(' ', self.w - #line.char)
-         line.fg = line.fg .. string.rep('0', self.w - #line.fg)
-         line.bg = line.bg .. string.rep('f', self.w - #line.bg)
+         line.fg = line.fg .. string.rep(self._fg_blit, self.w - #line.fg)
+         line.bg = line.bg .. string.rep(self._bg_blit, self.w - #line.bg)
       end
    end
-end
-
---- @param x number
---- @param y number
-function ScreenBuffer:setCursorPos(x, y)
-   self.cursor_x = x
-   self.cursor_y = y
-end
-
-function ScreenBuffer:getCursorPos()
-   return self.cursor_x, self.cursor_y
 end
 
 function ScreenBuffer:write(text)
@@ -103,11 +122,6 @@ function ScreenBuffer:write(text)
       string.rep(self._fg_blit, #text),
       string.rep(self._bg_blit, #text)
    )
-end
-
-function ScreenBuffer:setColor(fg, bg)
-   self:setTextColor(fg)
-   self:setBackgroundColor(bg)
 end
 
 function ScreenBuffer:blit(text, fg, bg)
@@ -168,11 +182,11 @@ end
 
 --- @param width number
 --- @param height number
-function ScreenBuffer.drawBoldBorder(width, height)
+function ScreenBuffer:drawBoldBorder(width, height)
    local bg = self:getBackgroundColor()
    local fg = self:getTextColor()
    local x, y = self:getCursorPos()
-   self:set_color(bg, fg)
+   self:setColor(bg, fg)
    self:write(string.rep(string.char(131), width))
 
    self:setBackgroundColor(fg)
@@ -184,27 +198,27 @@ function ScreenBuffer.drawBoldBorder(width, height)
    end
 
    self:setCursorPos(x, y + height - 1)
-   self:set_color(fg, bg)
+   self:setColor(fg, bg)
    self:write(string.rep(string.char(143), width))
 end
 
 --- @param width number
 --- @param height number
-function ScreenBuffer.drawOuterBorder(width, height)
+function ScreenBuffer:drawOuterBorder(width, height)
    local bg = self:getBackgroundColor()
    local fg = self:getTextColor()
    local x, y = self:getCursorPos()
 
    self:write(string.char(156))
    self:write(string.rep(string.char(140), width - 2))
-   self:set_color(bg, fg)
+   self:setColor(bg, fg)
    self:write(string.char(147))
 
    for i = 1, height - 2 do
       self:setCursorPos(x + width - 1, y + i)
       self:write(string.char(149))
    end
-   self:set_color(fg, bg)
+   self:setColor(fg, bg)
    for i = 1, height - 2 do
       self:setCursorPos(x, y + i)
       self:write(string.char(149))
@@ -219,7 +233,7 @@ end
 --- @param char string
 --- @param width number
 --- @param height number
-function ScreenBuffer.drawCharBorder(char, width, height)
+function ScreenBuffer:drawCharBorder(char, width, height)
    local cx, cy = self:getCursorPos()
    self:write(string.rep(char, width))
    for i = 1, height - 2 do
@@ -243,10 +257,6 @@ function ScreenBuffer:clear()
    self.cursor_y = 1
 end
 
-function ScreenBuffer:setCursorBlink(blink)
-   self.cursor_blink = blink
-end
-
 function ScreenBuffer:flush(target, offset_x, offset_y)
    for i = 1, self.h do
       target.setCursorPos(offset_x, offset_y + i - 1)
@@ -254,6 +264,7 @@ function ScreenBuffer:flush(target, offset_x, offset_y)
       target.blit(line.char, line.fg, line.bg)
    end
    target.setCursorPos(offset_x + self.cursor_x - 1, offset_y + self.cursor_y - 1)
+   target.setTextColor(self.cursor_color)
    target.setCursorBlink(self.cursor_blink)
 end
 

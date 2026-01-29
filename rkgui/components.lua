@@ -26,7 +26,7 @@ function module.button(gui, text, height)
         gui:apply_style('button.click')
         gui.buffer:drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
     elseif gui:check_mouse_holding(rect) then
-        gui:apply_style('button.holding') 
+        gui:apply_style('button.holding')
         gui.buffer:drawFilledBox(rect.x, rect.y, rect.x + rect.w - 1, rect.y + rect.h - 1)
     else
         gui:apply_style('button')
