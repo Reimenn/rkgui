@@ -204,11 +204,31 @@ function GUI:get_current_layout_rect()
     return self._layouts:peek().rect
 end
 
---- Internal helper: draw a sub-view inside an allocated rect and layout direction.
---- @param width number | string
----@param height number | string
----@param dir 'lr'|'rl'|'tb'|'bt'
----@param view fun():(boolean|nil)
+--- Create a custom layout with specified dimensions and direction for drawing child elements.
+---
+--- This method allocates a rectangular area within the current layout and arranges
+--- child elements in the specified direction. executes the view function to draw content.
+---
+--- `width` can be:
+--- - a number (fixed width in columns)
+--- - a string percentage like `"50%"` (50% of parent width)
+--- - `"+"` to fill remaining width
+---
+--- `height` can be:
+--- - a number (fixed height in rows)
+--- - a string percentage like `"50%"` (50% of parent height)
+--- - `"+"` to fill remaining height
+---
+--- `dir` specifies the layout direction:
+--- - `"lr"`: left-to-right (horizontal)
+--- - `"rl"`: right-to-left (horizontal reverse)
+--- - `"tb"`: top-to-bottom (vertical)
+--- - `"bt"`: bottom-to-top (vertical reverse)
+---
+--- @param width number | string The width of the layout area (number, percentage string, or "+")
+--- @param height number | string The height of the layout area (number, percentage string, or "+")
+--- @param dir 'lr'|'rl'|'tb'|'bt' The layout direction for arranging child elements
+--- @param view fun():(boolean|nil) The view function that draws content within the layout
 function GUI:custom_layout(width, height, dir, view)
     self._layouts:push(utils.Layout.new(
         self:malloc_rect(width, height),

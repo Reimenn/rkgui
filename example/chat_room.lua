@@ -80,7 +80,7 @@ local function channelPage()
     local w, h = app.buffer:getSize()
     -- Custom layout to display chat history
     app:custom_layout('+', h - 4, 'bt', function()
-        for i = 1, h - 4 do
+        for i = 1, app.last_rect.h do
             local index = #history - i + 1
             if index > 0 then
                 local message = history[index]
@@ -90,24 +90,16 @@ local function channelPage()
     end)
 
     app:row(1, function()
-        -- Click Edit button to edit message
-        if app:button('Edit') then
+        local text_width = w - 9
+        local show_text = text_utils.left(input_text, text_width)
+        -- Truncate text and show ellipsis if too long
+        if #show_text > text_width then
+            show_text = show_text:sub(1, text_width - 3) .. '...'
+        end
+        -- Show message, Click Edit button to edit message
+        if app:button(show_text) then
             input_text = dialog.get_string(input_text, 'Input message.')
         end
-        app:space(1)
-
-        -- Display input box text with gray background
-        app.theme:temp({
-            ['background'] = colors.gray,
-        }, function()
-            local text_width = w - 14
-            local show_text = text_utils.left(input_text, text_width)
-            -- Truncate text and show ellipsis if too long
-            if #show_text > text_width then
-                show_text = show_text:sub(1, text_width - 3) .. '...'
-            end
-            app:label(show_text)
-        end)
         app:space(1)
 
         -- Click Send button to send message
@@ -124,7 +116,7 @@ local function channelPage()
         end
     end)
 
-    -- Receive channel message with timeout of 0.0001 seconds
+    -- Receive channel message
     local receive, message = rednet.receive(channel, 0.0001)
     if receive then
         -- Add received message to history
